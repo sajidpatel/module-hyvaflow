@@ -27,6 +27,17 @@ Because Hyvä Flow attaches to `window.hyvaflow`, any script (inline template, A
 
 The module’s `composer.json` registers PSR-4 autoloading and copies the dist bundles into `pub/static` during `setup:static-content:deploy`.
 
+> Using a private Git repo? Add a custom Composer repository entry before running `composer require`. In Magento’s root `composer.json`:
+```json
+"repositories": {
+  "hyvaflow": {
+    "type": "vcs",
+    "url": "https://github.com/you/hyvaflow.git"
+  }
+}
+```
+You can then require the package normally (Composer will fetch it from the VCS URL instead of Packagist).
+
 ### Manual drop-in (legacy)
 
 Hyvä Flow ships as two ES module bundles stored in `view/frontend/web/dist`:

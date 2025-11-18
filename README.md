@@ -32,7 +32,7 @@ The module’s `composer.json` registers PSR-4 autoloading and copies the dist b
 "repositories": {
   "hyvaflow": {
     "type": "vcs",
-    "url": "https://github.com/you/hyvaflow.git"
+    "url": "https://github.com/sajidpatel/module-hyvaflow.git"
   }
 }
 ```

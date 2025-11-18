@@ -1,0 +1,400 @@
+<?php
+/** @var \Magento\Framework\View\Element\Template $block */
+?>
+<div class="hyvaflow-examples2 hyva-prose space-y-8" data-role="hyvaflow-examples2">
+    <header class="space-y-2">
+        <p class="eyebrow"><?= $block->escapeHtml(__('Hyvä Flow Examples')) ?></p>
+        <h1 class="text-3xl font-semibold"><?= $block->escapeHtml(__('Global Event Bus & Cross-Component Events')) ?></h1>
+        <p><?= $block->escapeHtml(__('This page shows how a single window.hyvaflow instance can broadcast events across loosely coupled UI components. Try the controls below to see publishers and subscribers interact.')) ?></p>
+    </header>
+
+    <section class="hyvaflow-card border rounded p-4 space-y-4" id="examples2-global-bus">
+        <div>
+            <h2 class="text-2xl font-semibold"><?= $block->escapeHtml(__('Global Event Bus')) ?></h2>
+            <p><?= $block->escapeHtml(__('Emit a search event once and let multiple listeners react: analytics pushes to the data layer, recommendation tiles refresh copy, and HTMX components can fetch new data.')) ?></p>
+        </div>
+
+        <div class="grid gap-4 md:grid-cols-3">
+            <article class="bus-panel">
+                <h3><?= $block->escapeHtml(__('Search Publisher')) ?></h3>
+                <p class="text-sm text-muted"><?= $block->escapeHtml(__('Change the query and broadcast it through the event bus.')) ?></p>
+                <label class="block text-sm text-muted mb-1" for="examples2-search-query"><?= $block->escapeHtml(__('Query')) ?></label>
+                <input type="text" id="examples2-search-query" class="w-full bus-input" placeholder="<?= $block->escapeHtmlAttr(__('e.g. filament bulbs')) ?>">
+                <button type="button" class="action primary w-full mt-2" id="examples2-search-broadcast">
+                    <?= $block->escapeHtml(__('Trigger examples2:search')) ?>
+                </button>
+            </article>
+
+            <article class="bus-panel" data-panel="analytics">
+                <div class="flex items-center justify-between mb-1">
+                    <h3 class="mb-0"><?= $block->escapeHtml(__('Analytics Listener')) ?></h3>
+                    <span class="state-dot" data-state="off"></span>
+                </div>
+                <p class="text-sm text-muted"><?= $block->escapeHtml(__('Toggles a listener that forwards each search to dataLayer.')) ?></p>
+                <button type="button" class="action secondary w-full" id="examples2-toggle-analytics">
+                    <?= $block->escapeHtml(__('Enable listener')) ?>
+                </button>
+                <pre class="bus-log" id="examples2-analytics-log"></pre>
+            </article>
+
+            <article class="bus-panel" data-panel="recommendations">
+                <div class="flex items-center justify-between mb-1">
+                    <h3 class="mb-0"><?= $block->escapeHtml(__('Recommendation Tiles')) ?></h3>
+                    <span class="state-dot" data-state="off"></span>
+                </div>
+                <p class="text-sm text-muted"><?= $block->escapeHtml(__('Highlights how HTMX / Alpine components can refresh content after the same event.')) ?></p>
+                <button type="button" class="action secondary w-full" id="examples2-toggle-recs">
+                    <?= $block->escapeHtml(__('Enable listener')) ?>
+                </button>
+                <div class="bus-preview" id="examples2-recs-preview">
+                    <p class="text-sm text-muted"><?= $block->escapeHtml(__('No query received yet.')) ?></p>
+                </div>
+            </article>
+        </div>
+
+        <div class="grid gap-4 md:grid-cols-2">
+            <article class="bus-panel">
+                <h4 class="text-xl font-semibold mb-2"><?= $block->escapeHtml(__('Trigger Example')) ?></h4>
+                <pre class="hyvaflow-snippet"><code>window.hyvaflow.trigger('examples2:search', {
+  query,
+  ts: Date.now(),
+  source: 'hero-form'
+});</code></pre>
+            </article>
+            <article class="bus-panel">
+                <h4 class="text-xl font-semibold mb-2"><?= $block->escapeHtml(__('Listen Example')) ?></h4>
+                <pre class="hyvaflow-snippet"><code>const handler = (event) => {
+  pushDataLayer(event.detail);
+};
+
+window.hyvaflow.on('examples2:search', handler);
+// Later: window.hyvaflow.off('examples2:search', handler);</code></pre>
+            </article>
+        </div>
+    </section>
+
+    <section class="hyvaflow-card border rounded p-4 space-y-4" id="examples2-cross-components">
+        <div>
+            <h2 class="text-2xl font-semibold"><?= $block->escapeHtml(__('Cross-Component Event Flow')) ?></h2>
+            <p><?= $block->escapeHtml(__('A single add-to-cart event fans out to the cart badge, free-delivery banner, and analytics. Toggle components independently to see how loosely coupled updates stay in sync.')) ?></p>
+        </div>
+
+        <div class="grid gap-4 md:grid-cols-3">
+            <article class="bus-panel">
+                <h3><?= $block->escapeHtml(__('Product Card (Publisher)')) ?></h3>
+                <p class="text-sm text-muted"><?= $block->escapeHtml(__('Simulate actions a PDP or PLP tile might emit.')) ?></p>
+                <div class="flex flex-col gap-2">
+                    <button type="button" class="action primary" data-cross-action="cart">
+                        <?= $block->escapeHtml(__('Trigger cart:itemAdded')) ?>
+                    </button>
+                    <button type="button" class="action" data-cross-action="wishlist">
+                        <?= $block->escapeHtml(__('Trigger wishlist:itemAdded')) ?>
+                    </button>
+                    <button type="button" class="action secondary" data-cross-action="inventory">
+                        <?= $block->escapeHtml(__('Trigger inventory:low')) ?>
+                    </button>
+                </div>
+            </article>
+
+            <article class="bus-panel" data-cross-target="cart">
+                <div class="flex items-center justify-between mb-1">
+                    <h3 class="mb-0"><?= $block->escapeHtml(__('Cart Badge Component')) ?></h3>
+                    <span class="state-dot" data-state="off"></span>
+                </div>
+                <p class="text-sm text-muted"><?= $block->escapeHtml(__('Updates whenever cart:itemAdded fires. Toggle subscription below.')) ?></p>
+                <div class="cart-badge" data-cart-count>0</div>
+                <button type="button" class="action secondary w-full" data-cross-toggle="cart">
+                    <?= $block->escapeHtml(__('Enable listener')) ?>
+                </button>
+            </article>
+
+            <article class="bus-panel" data-cross-target="marketing">
+                <div class="flex items-center justify-between mb-1">
+                    <h3 class="mb-0"><?= $block->escapeHtml(__('Marketing Banner')) ?></h3>
+                    <span class="state-dot" data-state="off"></span>
+                </div>
+                <p class="text-sm text-muted"><?= $block->escapeHtml(__('Listens to cart and wishlist events to refresh copy.')) ?></p>
+                <div class="bus-preview" data-banner-copy><?= $block->escapeHtml(__('Waiting for events…')) ?></div>
+                <button type="button" class="action secondary w-full" data-cross-toggle="marketing">
+                    <?= $block->escapeHtml(__('Enable listener')) ?>
+                </button>
+            </article>
+        </div>
+
+        <article class="bus-panel" data-cross-target="analytics">
+            <div class="flex items-center justify-between mb-1">
+                <h3 class="mb-0"><?= $block->escapeHtml(__('Analytics Tap')) ?></h3>
+                <span class="state-dot" data-state="off"></span>
+            </div>
+            <p class="text-sm text-muted"><?= $block->escapeHtml(__('Collects all cross-component events in one stream.')) ?></p>
+            <button type="button" class="action secondary" data-cross-toggle="analytics">
+                <?= $block->escapeHtml(__('Enable listener')) ?>
+            </button>
+            <pre class="bus-log" id="examples2-cross-log"></pre>
+        </article>
+    </section>
+
+    <section class="hyvaflow-card border rounded p-4 space-y-2" id="examples2-log">
+        <div class="flex items-center justify-between">
+            <h2 class="text-2xl font-semibold mb-0"><?= $block->escapeHtml(__('Unified Event Log')) ?></h2>
+            <button type="button" class="action" id="examples2-clear-log"><?= $block->escapeHtml(__('Clear log')) ?></button>
+        </div>
+        <pre id="examples2-log-output" class="hyvaflow-demo-log"></pre>
+    </section>
+</div>
+
+<style>
+    .hyvaflow-examples2 .eyebrow {
+        font-size: 0.8rem;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: #64748b;
+    }
+    .hyvaflow-card {
+        background: #fdfdfd;
+    }
+    .bus-panel {
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        border-radius: 0.5rem;
+        padding: 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+    .bus-input {
+        border: 1px solid #cbd5f5;
+        border-radius: 0.375rem;
+        padding: 0.5rem 0.75rem;
+    }
+    .bus-log,
+    .hyvaflow-demo-log {
+        min-height: 120px;
+        background: #0f172a;
+        color: #e2e8f0;
+        border-radius: 0.375rem;
+        padding: 0.75rem;
+        font-size: 0.85rem;
+        overflow: auto;
+    }
+    .bus-preview {
+        min-height: 90px;
+        border: 1px dashed #cbd5f5;
+        border-radius: 0.375rem;
+        padding: 0.75rem;
+    }
+    .state-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 999px;
+        background: #cbd5f5;
+    }
+    .state-dot[data-state="on"] {
+        background: #34d399;
+        box-shadow: 0 0 0 3px rgba(52,211,153,.25);
+    }
+    .cart-badge {
+        font-size: 2.5rem;
+        font-weight: 700;
+        text-align: center;
+        border-radius: 0.5rem;
+        background: #eef2ff;
+        padding: 0.5rem;
+    }
+</style>
+
+<script>
+(() => {
+    const ready = () => {
+        const logEl = document.getElementById('examples2-log-output');
+        const analyticsLogEl = document.getElementById('examples2-analytics-log');
+        const recsPreview = document.getElementById('examples2-recs-preview');
+        const searchInput = document.getElementById('examples2-search-query');
+        const publisherButtons = document.querySelectorAll('[data-cross-action]');
+        const crossLog = document.getElementById('examples2-cross-log');
+
+        const logLine = (channel, message, target = logEl) => {
+            if (!target) {
+                return;
+            }
+            const ts = new Date().toLocaleTimeString();
+            target.textContent = `[${ts}] [${channel}] ${message}\n` + target.textContent;
+        };
+
+        const flow = window.hyvaflow;
+        if (!flow) {
+            logLine('error', 'window.hyvaflow is not available. Load hyvaflow-core.js (and optionally the DOM plugin) before this template.');
+            return;
+        }
+
+        const state = {
+            analyticsEnabled: false,
+            recsEnabled: false,
+            cross: {
+                cart: false,
+                marketing: false,
+                analytics: false,
+            },
+            listeners: {}
+        };
+
+        const setStateDot = (panel, isOn) => {
+            const dot = panel.querySelector('.state-dot');
+            if (dot) {
+                dot.dataset.state = isOn ? 'on' : 'off';
+            }
+        };
+
+        const toggleAnalytics = () => {
+            const panel = document.querySelector('[data-panel="analytics"]');
+            if (!panel) return;
+            const button = document.getElementById('examples2-toggle-analytics');
+            if (!state.analyticsEnabled) {
+                const handler = (event) => {
+                    logLine('analytics', JSON.stringify(event.detail), analyticsLogEl);
+                };
+                state.listeners.analytics = handler;
+                flow.on('examples2:search', handler);
+                state.analyticsEnabled = true;
+                button.textContent = 'Disable listener';
+                setStateDot(panel, true);
+                logLine('bus', 'Analytics listener registered.');
+            } else {
+                flow.off('examples2:search', state.listeners.analytics);
+                state.analyticsEnabled = false;
+                button.textContent = 'Enable listener';
+                setStateDot(panel, false);
+                logLine('bus', 'Analytics listener removed.');
+            }
+        };
+
+        const toggleRecommendations = () => {
+            const panel = document.querySelector('[data-panel="recommendations"]');
+            if (!panel) return;
+            const button = document.getElementById('examples2-toggle-recs');
+            if (!state.recsEnabled) {
+                const handler = (event) => {
+                    const { query } = event.detail;
+                    recsPreview.innerHTML = '<p class="text-sm"><?= $block->escapeJs(__('Rebuilding recommendations for:')) ?> <strong>' +
+                        (query || '<?= $block->escapeJs(__('(empty)')) ?>') + '</strong></p>';
+                    logLine('recs', `Updated copy for "${query || 'empty'}".`);
+                };
+                state.listeners.recs = handler;
+                flow.on('examples2:search', handler);
+                state.recsEnabled = true;
+                button.textContent = 'Disable listener';
+                setStateDot(panel, true);
+                logLine('bus', 'Recommendation listener registered.');
+            } else {
+                flow.off('examples2:search', state.listeners.recs);
+                state.recsEnabled = false;
+                button.textContent = 'Enable listener';
+                setStateDot(panel, false);
+                recsPreview.innerHTML = '<p class="text-sm text-muted"><?= $block->escapeJs(__('No query received yet.')) ?></p>';
+                logLine('bus', 'Recommendation listener removed.');
+            }
+        };
+
+        const broadcastSearch = () => {
+            const query = (searchInput?.value || '').trim();
+            const payload = {
+                query,
+                ts: Date.now(),
+                source: 'examples2:search',
+            };
+            flow.trigger('examples2:search', payload);
+            logLine('bus', `trigger('examples2:search') => ${JSON.stringify(payload)}`);
+        };
+
+        const crossHandlers = {
+            cart: (event) => {
+                const badge = document.querySelector('[data-cart-count]');
+                if (!badge) return;
+                const current = Number(badge.textContent) || 0;
+                badge.textContent = current + event.detail.quantity;
+                logLine('cart', `Cart updated to ${badge.textContent}.`, crossLog);
+            },
+            marketing: (event) => {
+                const copy = document.querySelector('[data-banner-copy]');
+                if (!copy) return;
+                copy.textContent = `Promo refreshed after ${event.detail.eventName}`;
+                logLine('marketing', `Banner copy refreshed (${event.detail.eventName}).`, crossLog);
+            },
+            analytics: (event) => {
+                logLine('analytics', `Captured ${event.detail.eventName}`, crossLog);
+            },
+        };
+
+        const toggleCrossListener = (key) => {
+            const button = document.querySelector(`[data-cross-toggle="${key}"]`);
+            const container = document.querySelector(`[data-cross-target="${key}"]`);
+            if (!button || !container) return;
+            state.cross[key] = !state.cross[key];
+            const enabled = state.cross[key];
+            button.textContent = enabled ? 'Disable listener' : 'Enable listener';
+            setStateDot(container, enabled);
+            const handler = state.listeners[key];
+            const eventNames = {
+                cart: 'examples2:cart:itemAdded',
+                marketing: 'examples2:marketing:update',
+                analytics: 'examples2:analytics:tap',
+            };
+
+            if (enabled) {
+                const wrapped = (event) => crossHandlers[key](event);
+                state.listeners[key] = wrapped;
+                flow.on(eventNames[key], wrapped);
+                logLine('bus', `Cross listener for ${eventNames[key]} registered.`);
+            } else if (handler) {
+                flow.off(eventNames[key], handler);
+                logLine('bus', `Cross listener for ${eventNames[key]} removed.`);
+            }
+        };
+
+        const emitCrossEvent = (action) => {
+            const events = {
+                cart: {
+                    name: 'examples2:cart:itemAdded',
+                    detail: { eventName: 'cart:itemAdded', quantity: 1, sku: 'demo-' + Math.random().toString(16).slice(2, 6) },
+                },
+                wishlist: {
+                    name: 'examples2:marketing:update',
+                    detail: { eventName: 'wishlist:itemAdded', list: 'favourites' },
+                },
+                inventory: {
+                    name: 'examples2:marketing:update',
+                    detail: { eventName: 'inventory:low', sku: 'demo-' + Math.random().toString(16).slice(2, 6) },
+                },
+            };
+            const event = events[action];
+            if (!event) return;
+            flow.trigger(event.name, event.detail);
+            flow.trigger('examples2:analytics:tap', event.detail);
+            logLine('publisher', `trigger('${event.name}') => ${JSON.stringify(event.detail)}`);
+        };
+
+        document.getElementById('examples2-toggle-analytics')?.addEventListener('click', toggleAnalytics);
+        document.getElementById('examples2-toggle-recs')?.addEventListener('click', toggleRecommendations);
+        document.getElementById('examples2-search-broadcast')?.addEventListener('click', broadcastSearch);
+        document.getElementById('examples2-clear-log')?.addEventListener('click', () => {
+            if (logEl) logEl.textContent = '';
+        });
+
+        document.querySelectorAll('[data-cross-toggle]').forEach((btn) => {
+            btn.addEventListener('click', () => toggleCrossListener(btn.dataset.crossToggle));
+        });
+
+        publisherButtons.forEach((btn) => {
+            btn.addEventListener('click', () => emitCrossEvent(btn.dataset.crossAction));
+        });
+
+        logLine('init', 'Hyvä Flow Examples 2 ready.');
+    };
+
+    if (document.readyState === 'complete' || document.readyState === 'interactive') {
+        ready();
+    } else {
+        document.addEventListener('DOMContentLoaded', ready, { once: true });
+    }
+})();
+</script>

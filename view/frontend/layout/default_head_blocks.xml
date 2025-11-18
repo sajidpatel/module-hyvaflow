@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Hyvä Flow - Head Block Configuration
+ * Auto-loads the Hyvä Flow JavaScript module
+ */
+-->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+
+    <head>
+        <!-- Load Hyvä Flow core (event bus) -->
+        <block class="Magento\Framework\View\Element\Template"
+               name="sajidpatel.hyvaflow.core"
+               template="SajidPatel_HyvaFlow::head/core-script.phtml"
+               ifconfig="hyvaflow/general/load_core"/>
+        <!-- Optional DOM plugin that augments the core with selection helpers -->
+        <block class="Magento\Framework\View\Element\Template"
+               name="sajidpatel.hyvaflow.dom.helper"
+               template="SajidPatel_HyvaFlow::head/dom-helper-script.phtml"
+               ifconfig="hyvaflow/general/load_dom_helper"/>
+    </head>
+</page>

@@ -1,0 +1,31 @@
+{
+  "name": "@sajidpatel/hyvaflow",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Build tooling for the Hyvä Flow demo assets.",
+  "types": "types/generated/index.d.ts",
+  "scripts": {
+    "build": "npm run build:types && node ./scripts/build-hyvaflow.mjs",
+    "watch": "node ./scripts/build-hyvaflow.mjs --watch",
+    "typecheck": "tsc --noEmit",
+    "build:types": "tsc -p tsconfig.types.json",
+    "types:watch": "tsc -p tsconfig.types.json --watch",
+    "lint": "eslint \"view/frontend/web/src/**/*.ts\"",
+    "lint:fix": "eslint \"view/frontend/web/src/**/*.ts\" --fix",
+    "test": "vitest",
+    "test:watch": "vitest --watch"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.1",
+    "@typescript-eslint/eslint-plugin": "^8.46.4",
+    "@typescript-eslint/parser": "^8.46.4",
+    "@vitest/coverage-v8": "^4.0.10",
+    "@vitest/ui": "^4.0.10",
+    "esbuild": "^0.23.0",
+    "eslint": "^9.39.1",
+    "globals": "^16.5.0",
+    "jsdom": "^27.0.1",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.10"
+  }
+}

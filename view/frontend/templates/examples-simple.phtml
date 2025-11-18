@@ -1,0 +1,284 @@
+<!--
+    Hyvä Flow - Simple Usage Examples
+    This template demonstrates each Hyvä Flow command with practical examples
+-->
+
+<div class="max-w-4xl mx-auto p-6 font-sans">
+    <h1 class="text-2xl font-bold mb-6 text-gray-800">2 Hyvä Flow - Command Examples</h1>
+
+    <!-- Example 1: on() - Subscribe to events -->
+    <section class="mb-8 p-4 border rounded-lg bg-blue-50">
+        <h2 class="text-xl font-semibold mb-3 text-blue-600">1. on() - Subscribe to Events</h2>
+        <pre class="bg-gray-900 text-green-400 p-4 rounded text-sm mb-3 overflow-x-auto">
+// Listen for custom events
+window.hyvaflow.on('user:login', function(event) {
+    console.log('User logged in:', event.detail);
+});
+
+// Listen for DOM events
+window.hyvaflow.on('click', function(event) {
+    console.log('Element clicked:', event.target);
+});
+        </pre>
+        <div class="mt-2 p-3 bg-white rounded">
+            <button id="test-on-btn" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+                Trigger Test Event (on())
+            </button>
+            <div id="on-output" class="mt-3 p-2 bg-gray-100 rounded text-sm">Event output will appear here...</div>
+        </div>
+    </section>
+
+    <!-- Example 2: trigger() - Emit events -->
+    <section class="mb-8 p-4 border rounded-lg bg-green-50">
+        <h2 class="text-xl font-semibold mb-3 text-green-600">2. trigger() - Emit Events</h2>
+        <pre class="bg-gray-900 text-green-400 p-4 rounded text-sm mb-3 overflow-x-auto">
+// Emit custom events
+element.addEventListener('click', function() {
+    window.hyvaflow.trigger('button:clicked', {
+        buttonText: this.textContent,
+        timestamp: Date.now()
+    });
+});
+
+// Send data to Alpine components
+window.hyvaflow.trigger('cart:updated', {
+    items: 5,
+    total: 149.99
+});
+        </pre>
+        <div class="mt-2 p-3 bg-white rounded">
+            <button id="test-trigger-btn" class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600">
+                Trigger Event (trigger())
+            </button>
+            <button id="alpine-trigger-btn" class="px-4 py-2 bg-purple-500 text-white rounded hover:bg-purple-600 ml-2">
+                Send to Alpine (trigger())
+            </button>
+            <div id="trigger-output" class="mt-3 p-2 bg-gray-100 rounded text-sm">Trigger output will appear here...</div>
+        </div>
+    </section>
+
+    <!-- Example 3: select() - DOM queries -->
+    <section class="mb-8 p-4 border rounded-lg bg-yellow-50">
+        <h2 class="text-xl font-semibold mb-3 text-yellow-600">3. select() - DOM Queries</h2>
+        <pre class="bg-gray-900 text-green-400 p-4 rounded text-sm mb-3 overflow-x-auto">
+// Select elements by CSS selector
+const buttons = window.hyvaflow.select('button');
+const inputs = window.hyvaflow.select('input[type="text"]');
+const products = window.hyvaflow.select('.product-item');
+
+// Process selected elements
+buttons.forEach(btn => {
+    btn.addEventListener('click', handler);
+});
+        </pre>
+        <div class="mt-2 p-3 bg-white rounded">
+            <div class="demo-select-container space-y-2 mb-4">
+                <button class="select-demo-btn px-3 py-1 bg-gray-200 rounded text-sm">Demo Button 1</button>
+                <button class="select-demo-btn px-3 py-1 bg-gray-200 rounded text-sm">Demo Button 2</button>
+                <button class="select-demo-btn px-3 py-1 bg-gray-200 rounded text-sm">Demo Button 3</button>
+            </div>
+
+            <button id="test-select-btn" class="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600">
+                Select and Highlight (.select())
+            </button>
+            <div id="select-output" class="mt-3 p-2 bg-gray-100 rounded text-sm">Select output will appear here...</div>
+        </div>
+    </section>
+
+    <!-- Example 4: Ready state (Alpine integration) -->
+    <section class="mb-8 p-4 border rounded-lg bg-indigo-50">
+        <h2 class="text-xl font-semibold mb-3 text-indigo-600">4. ready() - Wait for Alpine</h2>
+        <pre class="bg-gray-900 text-green-400 p-4 rounded text-sm mb-3 overflow-x-auto">
+// Wait for Alpine.js to be ready (useful for delayed scripts)
+window.hyvaflow.ready().then(() => {
+    console.log('Alpine is ready!');
+
+    // Now it's safe to interact with Alpine components
+    window.hyvaflow.trigger('data:loaded', {
+        ready: true
+    });
+});
+        </pre>
+        <div class="mt-2 p-3 bg-white rounded">
+            <button id="test-ready-btn" class="px-4 py-2 bg-indigo-500 text-white rounded hover:bg-indigo-600">
+                Test Ready State (ready())
+            </button>
+            <div id="ready-output" class="mt-3 p-2 bg-gray-100 rounded text-sm">Ready state output will appear here...</div>
+        </div>
+    </section>
+
+    <!-- Example 5: Cleanup events -->
+    <section class="mb-8 p-4 border rounded-lg bg-red-50">
+        <h2 class="text-xl font-semibold mb-3 text-red-600">5. off() - Remove Event Listeners</h2>
+        <pre class="bg-gray-900 text-green-400 p-4 rounded text-sm mb-3 overflow-x-auto">
+// Store event handler reference
+const clickHandler = function(event) {
+    console.log('Clicked!', event.target);
+};
+
+// Add event listener
+window.hyvaflow.on('click', clickHandler);
+
+// Later, remove it when cleaning up
+window.hyvaflow.off('click', clickHandler);
+        </pre>
+        <div class="mt-2 p-3 bg-white rounded">
+            <button id="enable-cleanup-btn" class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">
+                Enable Click Handler (on())
+            </button>
+            <button id="disable-cleanup-btn" class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 ml-2">
+                Disable Click Handler (off())
+            </button>
+
+            <p id="cleanup-status" class="mt-3 text-sm">Click handler is NOT active</p>
+            <p class="text-sm text-gray-600 mt-2">Tip: Try clicking around the page after enabling</p>
+        </div>
+    </section>
+
+    <!-- Complete Example: Real-world usage -->
+    <section class="mb-8 p-4 border rounded-lg bg-gray-50">
+        <h2 class="text-xl font-semibold mb-3 text-gray-700">6. Complete Example: Shopping Cart</h2>
+        <pre class="bg-gray-900 text-green-400 p-4 rounded text-sm mb-3 overflow-x-auto">
+// Real-world cart update flow
+function updateCart() {
+    // Wait for Alpine to be ready
+    window.hyvaflow.ready().then(() => {
+
+        // Listen for cart updates from Alpine components
+        window.hyvaflow.on('cart:item:added', function(event) {
+            const { productId, quantity, total } = event.detail;
+
+            // Update UI elements
+            const cartIcon = window.hyvaflow.select('.cart-icon')[0];
+            const countBadge = window.hyvaflow.select('.cart-count')[0];
+
+            if (countBadge) {
+                countBadge.textContent = total.items;
+                countBadge.classList.add('animate-pulse');
+            }
+
+            // Send analytics event
+            window.hyvaflow.trigger('analytics:track', {
+                event: 'add_to_cart',
+                productId: productId,
+                quantity: quantity
+            });
+        });
+
+        // Emit event to update Alpine cart component
+        window.hyvaflow.trigger('cart:update-ui', {
+            items: cartItems,
+            subtotal: calculateSubtotal()
+        });
+    });
+}
+        </pre>
+        <div class="mt-4 p-4 bg-white rounded border">
+            <div class="flex items-center justify-between p-3 bg-blue-50 rounded">
+                <span class="font-semibold text-blue-800">Shopping Cart (Demo)</span>
+                <span class="cart-icon font-bold text-blue-600">🛒 Cart: <span class="cart-count bg-blue-600 text-white px-2 py-1 rounded-full text-sm">0</span></span>
+            </div>
+        </div>
+    </section>
+</div>
+
+<!-- JavaScript for interactive examples -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    let clickHandler = null; // For off() example
+    let eventHandler = null; // For on() example
+
+    // on() example - Subscribe to events
+    document.getElementById('test-on-btn').addEventListener('click', () => {
+        if (!eventHandler) {
+            eventHandler = function(event) {
+                const output = document.getElementById('on-output');
+                output.textContent = `[${new Date().toLocaleTimeString()}] Received: ${JSON.stringify(event.detail)}`;
+            };
+            window.hyvaflow.on('hyva-test-event', eventHandler);
+        }
+
+        console.log('[Demo] Click handler registered');
+        document.getElementById('on-output').textContent = 'Event listener registered - now processing events';
+    });
+
+    // trigger() example - Emit events
+    document.getElementById('test-trigger-btn').addEventListener('click', () => {
+        window.hyvaflow.trigger('hyva-test-event', {
+            source: 'trigger button',
+            message: 'Hello from trigger!',
+            timestamp: Date.now()
+        });
+        document.getElementById('trigger-output').textContent = 'Event triggered!';
+    });
+
+    document.getElementById('alpine-trigger-btn').addEventListener('click', () => {
+        window.hyvaflow.trigger('cart:updated', { items: 3, total: 99.97 });
+        document.getElementById('trigger-output').textContent = 'Alpine event triggered!';
+
+        // Update cart demo
+        document.querySelector('.cart-count').textContent = '3';
+    });
+
+    // select() example - DOM queries
+    document.getElementById('test-select-btn').addEventListener('click', () => {
+        const buttons = window.hyvaflow.select('.select-demo-btn');
+        document.getElementById('select-output').textContent = `Selected ${buttons.length} buttons`;
+
+        // Highlight them
+        buttons.forEach(btn => {
+            btn.style.backgroundColor = '#fbbf24';
+            btn.style.color = '#000';
+            setTimeout(() => {
+                btn.style.backgroundColor = '';
+                btn.style.color = '';
+            }, 2000);
+        });
+    });
+
+    // ready() example - Wait for Alpine
+    document.getElementById('test-ready-btn').addEventListener('click', async () => {
+        const output = document.getElementById('ready-output');
+        output.textContent = 'Checking Alpine ready state...';
+
+        if (!window.hyvaflow.ready) {
+            output.textContent = 'Hyvä Flow ready() not available';
+            return;
+        }
+
+        await window.hyvaflow.ready();
+
+        output.textContent = 'Alpine is ready! (We can now safely interact with Alpine components)';
+
+        // Trigger a demo Alpine event
+        window.hyvaflow.trigger('ready-demo-event', { ready: true });
+    });
+
+    // off() example - Remove listeners
+    function enableClickHandler() {
+        if (!clickHandler) {
+            clickHandler = (event) => {
+                if (Math.random() > 0.8) {
+                    console.log('[Demo] Click detected via Hyvä Flow:', event.target);
+                }
+            };
+            window.hyvaflow.on('click', clickHandler);
+            document.getElementById('cleanup-status').textContent = 'Click handler is ACTIVE';
+        }
+    }
+
+    function disableClickHandler() {
+        if (clickHandler) {
+            window.hyvaflow.off('click', clickHandler);
+            clickHandler = null;
+            document.getElementById('cleanup-status').textContent = 'Click handler is NOT active';
+        }
+    }
+
+    document.getElementById('enable-cleanup-btn').addEventListener('click', enableClickHandler);
+    document.getElementById('disable-cleanup-btn').addEventListener('click', disableClickHandler);
+
+    // Log readiness
+    console.log('✅ Hyvä Flow Command Examples loaded');
+});
+</script>

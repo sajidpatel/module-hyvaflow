@@ -1,0 +1,26 @@
+{
+    "name": "sajidpatel/module-hyvaflow",
+    "description": "Hyvä Flow demo module (core event bus, DOM helpers, and examples).",
+    "type": "magento2-module",
+    "license": [
+        "OSL-3.0",
+        "AFL-3.0"
+    ],
+    "authors": [
+        {
+            "name": "Sajid Patel"
+        }
+    ],
+    "require": {
+        "php": ">=8.1",
+        "magento/framework": "^103.0"
+    },
+    "autoload": {
+        "files": [
+            "registration.php"
+        ],
+        "psr-4": {
+            "SajidPatel\\HyvaFlow\\": ""
+        }
+    }
+}

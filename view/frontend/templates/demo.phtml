@@ -1,0 +1,856 @@
+<?php
+/** @var \Magento\Framework\View\Element\Template $block */
+?>
+<div class="hyvaflow-demo hyva-prose space-y-8 text-slate-800 [&_.action]:whitespace-nowrap" data-role="hyvaflow-demo">
+    <header class="space-y-2">
+        <p class="eyebrow text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Hyvä Flow</p>
+        <h1><?= $block->escapeHtml(__('Interactive Reference')) ?></h1>
+        <p><?= $block->escapeHtml(__('This playground exercises every Hyvä Flow helper: EventBus, trigger, DOM selection, HTMX bridge, and Alpine bridge dispatch.')) ?></p>
+    </header>
+
+    <section class="space-y-3 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+        <h2 class="text-xl font-semibold"><?= $block->escapeHtml(__('Feature Checklist')) ?></h2>
+        <ul class="list-disc pl-6 space-y-1 text-base">
+            <li><?= $block->escapeHtml(__('Register listeners with window.hyvaflow.on(event, handler).')) ?></li>
+            <li><?= $block->escapeHtml(__('Trigger custom events and forward them to Alpine with window.hyvaflow.trigger(event, detail).')) ?></li>
+            <li><?= $block->escapeHtml(__('Select DOM nodes in the current root via window.hyvaflow.select(selector).')) ?></li>
+            <li><?= $block->escapeHtml(__('React to HTMX swaps through the built-in HtmxBridge -> hyva:flow:dom:refresh.')) ?></li>
+            <li><?= $block->escapeHtml(__('Bubble Alpine events by wiring (mock) Alpine.dispatch calls.')) ?></li>
+        </ul>
+    </section>
+
+    <section class="space-y-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm" id="hyvaflow-event-demo">
+        <div>
+            <h2 class="text-xl font-semibold"><?= $block->escapeHtml(__('Event Bus & Trigger')) ?></h2>
+            <p><?= $block->escapeHtml(__('Register event handlers, dispatch Hyvä Flow events, and force the ready lifecycle.')) ?></p>
+        </div>
+        <div class="flex flex-wrap gap-3">
+            <button type="button" class="action primary" id="hyvaflow-register-listeners">
+                <?= $block->escapeHtml(__('Register demo listeners')) ?>
+            </button>
+            <button type="button" class="action" id="hyvaflow-trigger-event">
+                <?= $block->escapeHtml(__('Trigger hyva:flow:demo')) ?>
+            </button>
+            <button type="button" class="action" id="hyvaflow-emit-ready">
+                <?= $block->escapeHtml(__('Dispatch alpine:init (ready)')) ?>
+            </button>
+            <button type="button" class="action" id="hyvaflow-emit-refresh">
+                <?= $block->escapeHtml(__('Emit hyva:flow:dom:refresh')) ?>
+            </button>
+        </div>
+    </section>
+
+    <section class="space-y-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm" id="hyvaflow-select-demo">
+        <div>
+            <h2 class="text-xl font-semibold"><?= $block->escapeHtml(__('DomUtils.select')) ?></h2>
+            <p><?= $block->escapeHtml(__('Highlight and toggle individual .hyvaflow-demo-card nodes using window.hyvaflow.select(). Click any card to toggle its selection.')) ?></p>
+        </div>
+        <div class="grid gap-3 md:grid-cols-3 hyvaflow-card-grid">
+            <?php for ($i = 1; $i <= 3; $i++): ?>
+                <article class="hyvaflow-demo-card rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition duration-200 [&.is-selected]:border-emerald-400 [&.is-selected]:bg-emerald-50" data-card="<?= $block->escapeHtmlAttr((string) $i) ?>">
+                    <h3 class="font-semibold"><?= $block->escapeHtml(__('Card %1', $i)) ?></h3>
+                    <p><?= $block->escapeHtml(__('This block is selectable via hyvaflow.select(\'.hyvaflow-demo-card\').')) ?></p>
+                </article>
+            <?php endfor; ?>
+        </div>
+        <div class="flex gap-3 items-center">
+            <button type="button" class="action" id="hyvaflow-select-cards">
+                <?= $block->escapeHtml(__('Select & highlight cards')) ?>
+            </button>
+            <button type="button" class="action" id="hyvaflow-list-selected">
+                <?= $block->escapeHtml(__('Select highlighted cards')) ?>
+            </button>
+            <span id="hyvaflow-select-result" class="text-sm text-muted"></span>
+        </div>
+    </section>
+
+    <section class="space-y-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm" id="hyvaflow-chaining-demo">
+        <div>
+            <h2 class="text-xl font-semibold"><?= $block->escapeHtml(__('Selector Chaining Lab')) ?></h2>
+            <p><?= $block->escapeHtml(__('Learn why combined selectors return the nodes you expect, see the wrong pattern in action, and copy a ready-to-use snippet.')) ?></p>
+        </div>
+
+        <pre class="hyvaflow-snippet rounded-md bg-slate-900 p-4 text-sm text-slate-100 overflow-x-auto"><code id="hyvaflow-chain-snippet">const selectedCards = window.hyvaflow.select('.hyvaflow-chain-card.is-selected');</code></pre>
+
+        <div class="grid gap-3 md:grid-cols-3 hyvaflow-chain-grid" data-chain-grid>
+            <?php
+            $chainDemoCards = [
+                ['label' => 'Alpha', 'tone' => 'warm', 'description' => __('Warm tone card. Toggle selection, then highlight with a combined selector.')],
+                ['label' => 'Beta', 'tone' => 'cool', 'description' => __('Cool tone card. Useful to compare against filters that only keep warm cards.')],
+                ['label' => 'Gamma', 'tone' => 'warm', 'description' => __('Another warm tone card for chaining demos. Click the tile to toggle selection.')],
+            ];
+            ?>
+            <?php foreach ($chainDemoCards as $card): ?>
+                <article class="hyvaflow-chain-card rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition cursor-pointer [&.is-selected]:border-emerald-400 [&.is-selected]:bg-emerald-50 [&.is-selected]:shadow-lg" data-chain-card data-tone="<?= $block->escapeHtmlAttr($card['tone']) ?>">
+                    <header class="flex items-center justify-between mb-2">
+                        <h3 class="font-semibold mb-0"><?= $block->escapeHtml(__('%1 card', $card['label'])) ?></h3>
+                        <span class="state-chip inline-flex items-center rounded-full bg-slate-100 px-3 py-0.5 text-xs font-semibold uppercase tracking-[0.2em] text-slate-600"><?= $block->escapeHtml(__('Tone: %1', ucfirst($card['tone']))) ?></span>
+                    </header>
+                    <p class="text-sm text-muted mb-0"><?= $block->escapeHtml($card['description']) ?></p>
+                </article>
+            <?php endforeach; ?>
+        </div>
+
+        <div class="flex flex-wrap gap-3">
+            <button type="button" class="action secondary" id="hyvaflow-chain-toggle">
+                <?= $block->escapeHtml(__('Toggle random selection')) ?>
+            </button>
+            <button type="button" class="action secondary" id="hyvaflow-chain-combined">
+                <?= $block->escapeHtml(__('Highlight .is-selected cards')) ?>
+            </button>
+            <button type="button" class="action secondary" id="hyvaflow-chain-filter">
+                <?= $block->escapeHtml(__('Warm & selected (filter)')) ?>
+            </button>
+            <button type="button" class="action secondary" id="hyvaflow-chain-misuse">
+                <?= $block->escapeHtml(__('Show chained select pitfall')) ?>
+            </button>
+        </div>
+
+        <p id="hyvaflow-chain-result" class="text-sm text-muted">
+            <?= $block->escapeHtml(__('Click any card (or the buttons above) to see selector chaining tips.')) ?>
+        </p>
+    </section>
+
+    <section class="space-y-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm" id="hyvaflow-bridges-demo">
+        <div>
+            <h2 class="text-xl font-semibold"><?= $block->escapeHtml(__('Bridge Integrations')) ?></h2>
+            <p><?= $block->escapeHtml(__('Simulate HTMX swaps and an Alpine dispatcher to watch bridge forwarding in action.')) ?></p>
+        </div>
+        <div class="flex flex-wrap gap-3">
+            <button type="button" class="action" id="hyvaflow-htmx-swap">
+                <?= $block->escapeHtml(__('Simulate htmx:afterSwap')) ?>
+            </button>
+            <button type="button" class="action" id="hyvaflow-enable-alpine">
+                <?= $block->escapeHtml(__('Enable mock Alpine.dispatch')) ?>
+            </button>
+            <button type="button" class="action" id="hyvaflow-trigger-alpine-event">
+                <?= $block->escapeHtml(__('Trigger Alpine-bound event')) ?>
+            </button>
+        </div>
+    </section>
+
+    <section class="border rounded p-4 space-y-6" id="hyvaflow-public-api">
+        <div>
+            <h2 class="text-xl font-semibold"><?= $block->escapeHtml(__('publicApi Playground')) ?></h2>
+            <p><?= $block->escapeHtml(__('Use the controls below to exercise every Hyvä Flow public API helper and inspect the live output in the log.')) ?></p>
+        </div>
+
+        <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3 hyvaflow-action-grid">
+            <article class="hyvaflow-action-card space-y-2 rounded-lg border border-slate-200 bg-slate-50 p-4 shadow-sm">
+                <h3 class="font-semibold mb-1"><?= $block->escapeHtml(__('Event Queue')) ?></h3>
+                <p class="text-sm text-muted"><?= $block->escapeHtml(__('Queue new events, register listeners, and emit payloads.')) ?></p>
+                <div class="flex flex-wrap gap-2">
+                    <button type="button" class="action secondary" data-flow-action="dispatchEvent">
+                        <?= $block->escapeHtml(__('dispatchEvent()')) ?>
+                    </button>
+                    <button type="button" class="action secondary" data-flow-action="addEventListener">
+                        <?= $block->escapeHtml(__('addEventListener()')) ?>
+                    </button>
+                    <button type="button" class="action secondary" data-flow-action="on">
+                        <?= $block->escapeHtml(__('on()')) ?>
+                    </button>
+                    <button type="button" class="action secondary" data-flow-action="triggerOn">
+                        <?= $block->escapeHtml(__('trigger()')) ?>
+                    </button>
+                </div>
+            </article>
+
+            <article class="hyvaflow-action-card space-y-2 rounded-lg border border-slate-200 bg-slate-50 p-4 shadow-sm">
+                <h3 class="font-semibold mb-1"><?= $block->escapeHtml(__('Selection & Iteration')) ?></h3>
+                <p class="text-sm text-muted"><?= $block->escapeHtml(__('Run select(), first(), each(), forEach(), and toArray().')) ?></p>
+                <div class="flex flex-wrap gap-2">
+                    <button type="button" class="action secondary" data-flow-action="selectTargets">
+                        <?= $block->escapeHtml(__('select()')) ?>
+                    </button>
+                    <button type="button" class="action secondary" data-flow-action="first">
+                        <?= $block->escapeHtml(__('first()')) ?>
+                    </button>
+                    <button type="button" class="action secondary" data-flow-action="each">
+                        <?= $block->escapeHtml(__('each()')) ?>
+                    </button>
+                    <button type="button" class="action secondary" data-flow-action="forEach">
+                        <?= $block->escapeHtml(__('forEach()')) ?>
+                    </button>
+                    <button type="button" class="action secondary" data-flow-action="toArray">
+                        <?= $block->escapeHtml(__('toArray()')) ?>
+                    </button>
+                </div>
+            </article>
+
+            <article class="hyvaflow-action-card space-y-2 rounded-lg border border-slate-200 bg-slate-50 p-4 shadow-sm">
+                <h3 class="font-semibold mb-1"><?= $block->escapeHtml(__('Classes & Attributes')) ?></h3>
+                <p class="text-sm text-muted"><?= $block->escapeHtml(__('Toggle CSS utilities via hasClass(), toggleClass(), add/removeClass(), apply(), and set().')) ?></p>
+                <div class="flex flex-wrap gap-2">
+                    <button type="button" class="action secondary" data-flow-action="hasClass">
+                        <?= $block->escapeHtml(__('hasClass()')) ?>
+                    </button>
+                    <button type="button" class="action secondary" data-flow-action="toggleClass">
+                        <?= $block->escapeHtml(__('toggleClass()')) ?>
+                    </button>
+                    <button type="button" class="action secondary" data-flow-action="addClass">
+                        <?= $block->escapeHtml(__('addClass()')) ?>
+                    </button>
+                    <button type="button" class="action secondary" data-flow-action="removeClass">
+                        <?= $block->escapeHtml(__('removeClass()')) ?>
+                    </button>
+                    <button type="button" class="action secondary" data-flow-action="apply">
+                        <?= $block->escapeHtml(__('apply()')) ?>
+                    </button>
+                    <button type="button" class="action secondary" data-flow-action="setAttr">
+                        <?= $block->escapeHtml(__('set()')) ?>
+                    </button>
+                </div>
+            </article>
+
+            <article class="hyvaflow-action-card space-y-2 rounded-lg border border-slate-200 bg-slate-50 p-4 shadow-sm">
+                <h3 class="font-semibold mb-1"><?= $block->escapeHtml(__('Node Events')) ?></h3>
+                <p class="text-sm text-muted"><?= $block->escapeHtml(__('Attach DOM handlers with onEvent() then click the tiles below.')) ?></p>
+                <div class="flex flex-wrap gap-2">
+                    <button type="button" class="action secondary" data-flow-action="onEvent">
+                        <?= $block->escapeHtml(__('onEvent()')) ?>
+                    </button>
+                </div>
+            </article>
+        </div>
+
+        <div class="grid gap-3 md:grid-cols-3" data-flow-target-grid>
+            <?php foreach (['Alpha', 'Beta', 'Gamma'] as $target): ?>
+                <article class="hyvaflow-api-target rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition [&.is-accent]:border-orange-400 [&.is-accent]:bg-orange-50 [&.is-selected]:border-emerald-400 [&.is-selected]:bg-emerald-50 [&.is-applied]:bg-emerald-50/70" data-flow-target="<?= $block->escapeHtmlAttr(strtolower($target)) ?>" data-flow-state="idle">
+                    <div class="flex items-center justify-between mb-2">
+                        <h3 class="font-semibold mb-0"><?= $block->escapeHtml(__('%1 Target', $target)) ?></h3>
+                        <span class="state-chip inline-flex items-center rounded-full bg-slate-100 px-3 py-0.5 text-xs font-semibold uppercase tracking-[0.2em] text-slate-600" data-flow-attr>data-flow-state="idle"</span>
+                    </div>
+                    <p class="text-sm text-muted mb-0"><?= $block->escapeHtml(__('Class helpers toggle these tiles; click them after onEvent() to see DOM handlers fire.')) ?></p>
+                </article>
+            <?php endforeach; ?>
+        </div>
+
+        <div class="space-y-2 hyvaflow-dom-lab">
+            <div class="flex items-center justify-between flex-wrap gap-2">
+                <h3 class="font-semibold mb-0"><?= $block->escapeHtml(__('addDomListener Lab')) ?></h3>
+                <div class="flex flex-wrap gap-2">
+                    <button type="button" class="action secondary" id="hyvaflow-wire-dom-listener">
+                        <?= $block->escapeHtml(__('addDomListener()')) ?>
+                    </button>
+                    <button type="button" class="action secondary" id="hyvaflow-add-dom-node">
+                        <?= $block->escapeHtml(__('Add dynamic node')) ?>
+                    </button>
+                </div>
+            </div>
+            <div class="flex flex-wrap gap-2" data-flow-dom-area>
+                <?php for ($i = 1; $i <= 2; $i++): ?>
+                    <button type="button" class="action secondary hyvaflow-dom-node rounded-full border border-slate-300 px-3 py-1 text-sm shadow-sm transition duration-200" data-node="<?= $block->escapeHtmlAttr('static-' . $i) ?>">
+                        <?= $block->escapeHtml(__('Static %1', $i)) ?>
+                    </button>
+                <?php endfor; ?>
+            </div>
+            <p class="text-sm text-muted mb-0"><?= $block->escapeHtml(__('Wire the listener then click existing or newly added .hyvaflow-dom-node buttons to see the handler fire.')) ?></p>
+        </div>
+    </section>
+
+    <section class="space-y-3 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm" id="hyvaflow-log">
+        <div class="flex items-center justify-between">
+            <h2 class="text-xl font-semibold"><?= $block->escapeHtml(__('Event Log')) ?></h2>
+            <button type="button" class="action" id="hyvaflow-clear-log">
+                <?= $block->escapeHtml(__('Clear log')) ?>
+            </button>
+        </div>
+        <pre id="hyvaflow-demo-log" class="min-h-[160px] rounded-md bg-slate-950 p-4 text-sm font-mono text-emerald-100 overflow-auto"></pre>
+    </section>
+</div>
+
+<script>
+(() => {
+    const init = () => {
+        const logEl = document.getElementById('hyvaflow-demo-log');
+        const selectResult = document.getElementById('hyvaflow-select-result');
+        const cardGrid = document.querySelector('.hyvaflow-card-grid');
+        const chainGrid = document.querySelector('[data-chain-grid]');
+        const domArea = document.querySelector('[data-flow-dom-area]');
+        const actionButtons = document.querySelectorAll('[data-flow-action]');
+        const button = (id) => document.getElementById(id);
+        const format = (value) => typeof value === 'string' ? value : JSON.stringify(value);
+        const sampleSelector = '[data-flow-target]';
+        const chainResult = document.getElementById('hyvaflow-chain-result');
+        const chainSnippet = document.getElementById('hyvaflow-chain-snippet');
+
+        const logLine = (channel, message) => {
+            if (!logEl) {
+                return;
+            }
+            const ts = new Date().toLocaleTimeString();
+            logEl.textContent = `[${ts}] [${channel}] ${message}\n` + logEl.textContent;
+        };
+
+        const chainSnippets = {
+            combined: "const selectedCards = window.hyvaflow.select('.hyvaflow-chain-card.is-selected');",
+            filtered: "const warmSelected = window.hyvaflow.select('.hyvaflow-chain-card')\n  .toArray()\n  .filter((card) => card.classList.contains('is-selected') && card.dataset.tone === 'warm');",
+            misuse: "// Avoid nested select on the same nodes:\nwindow.hyvaflow.select('.hyvaflow-chain-card').select('.is-selected'); // => []",
+        };
+
+        const setChainSnippet = (key = 'combined') => {
+            if (!chainSnippet) {
+                return;
+            }
+            chainSnippet.textContent = chainSnippets[key] || chainSnippets.combined;
+        };
+        setChainSnippet('combined');
+
+        const getFlow = () => {
+            const flow = window.hyvaflow;
+            if (!flow) {
+                logLine('error', 'window.hyvaflow is undefined. Ensure hyvaflow-core.js (and optionally the DOM plugin) is deployed.');
+            }
+            return flow;
+        };
+
+        const updateChainMessage = (message, channel = 'chain') => {
+            if (chainResult) {
+                chainResult.textContent = message;
+            }
+            logLine(channel, message);
+        };
+
+        const state = {
+            listenersBound: false,
+            alpineMockEnabled: false,
+        };
+
+        const apiState = {
+            queuedCounter: 0,
+            queueListener: false,
+            onAliasBound: false,
+            applyToggle: false,
+            attrStep: 0,
+            domListenerBound: false,
+            domNodeCount: domArea ? domArea.querySelectorAll('.hyvaflow-dom-node').length : 0,
+            onEventBound: false,
+        };
+
+        const utilityClassMap = {
+            'is-selected': ['border-emerald-400', 'bg-emerald-50', 'shadow-lg'],
+            'is-accent': ['border-orange-400', 'bg-orange-50', 'shadow-md'],
+            'is-applied': ['bg-emerald-100'],
+        };
+        const highlightClasses = ['ring-4', 'ring-blue-400/70', 'shadow-lg'];
+
+        const describeTarget = (node) => {
+            if (!node) {
+                return 'node';
+            }
+            if (node.dataset && node.dataset.flowTarget) {
+                return node.dataset.flowTarget;
+            }
+            return node.tagName;
+        };
+
+        const describeDomNode = (node) => {
+            if (!node) {
+                return 'node';
+            }
+            if (node.dataset && node.dataset.node) {
+                return node.dataset.node;
+            }
+            return (node.textContent || 'node').trim();
+        };
+
+        const toggleUtilityClasses = (node, shouldEnable, classes = []) => {
+            if (!node || !node.classList || !classes.length) {
+                return;
+            }
+            classes.forEach((cls) => node.classList[shouldEnable ? 'add' : 'remove'](cls));
+        };
+
+        const syncStateClasses = (node) => {
+            if (!node || !node.classList) {
+                return;
+            }
+            Object.entries(utilityClassMap).forEach(([stateClass, classes]) => {
+                toggleUtilityClasses(node, node.classList.contains(stateClass), classes);
+            });
+        };
+
+        const syncAllStateClasses = () => {
+            document.querySelectorAll('.hyvaflow-demo-card, [data-flow-target], [data-chain-card], .hyvaflow-dom-node')
+                .forEach(syncStateClasses);
+        };
+
+        const highlightNode = (node, classes = highlightClasses, duration = 900) => {
+            if (!node || !node.classList) {
+                return;
+            }
+            node.classList.add(...classes);
+            setTimeout(() => node.classList.remove(...classes), duration);
+        };
+
+        const refreshAttrBadges = () => {
+            document.querySelectorAll('[data-flow-target]').forEach((node) => {
+                const badge = node.querySelector('[data-flow-attr]');
+                if (!badge) {
+                    return;
+                }
+                const value = node.getAttribute('data-flow-state') || 'unset';
+                badge.textContent = `data-flow-state="${value}"`;
+            });
+        };
+
+        const withTargets = (callback) => {
+            const flow = getFlow();
+            if (!flow) {
+                return;
+            }
+            const selection = flow.select(sampleSelector);
+            if (!selection.length) {
+                logLine('api', `select('${sampleSelector}') returned 0 nodes.`);
+                return;
+            }
+            return callback(selection, flow);
+        };
+
+        refreshAttrBadges();
+        syncAllStateClasses();
+
+        const highlightSelection = (selection, classes = highlightClasses) => {
+            if (!selection) {
+                return;
+            }
+            const run = Array.isArray(selection) ? selection : (typeof selection.toArray === 'function'
+                ? selection.toArray()
+                : (typeof selection[Symbol.iterator] === 'function' ? Array.from(selection) : []));
+            run.forEach((node) => highlightNode(node, classes));
+        };
+
+        const apiActions = {
+            dispatchEvent: () => {
+                const flow = getFlow();
+                if (!flow) {
+                    return;
+                }
+                const counter = ++apiState.queuedCounter;
+                flow.dispatchEvent({
+                    event: 'hyva:flow:queued-demo',
+                    detail: { counter, via: 'dispatchEvent' },
+                });
+                logLine('api', `dispatchEvent queued hyva:flow:queued-demo (#${counter}).`);
+            },
+            addEventListener: () => {
+                const flow = getFlow();
+                if (!flow) {
+                    return;
+                }
+                if (apiState.queueListener) {
+                    logLine('api', 'addEventListener already observing hyva:flow:queued-demo.');
+                    return;
+                }
+                apiState.queueListener = true;
+                flow.addEventListener('hyva:flow:queued-demo', (event) => {
+                    logLine('api', `addEventListener -> detail ${format(event.detail)}`);
+                });
+                logLine('api', 'addEventListener registered for hyva:flow:queued-demo (queued events replay immediately).');
+            },
+            on: () => {
+                const flow = getFlow();
+                if (!flow) {
+                    return;
+                }
+                if (apiState.onAliasBound) {
+                    logLine('api', 'on() listener already registered for hyva:flow:on-lab.');
+                    return;
+                }
+                apiState.onAliasBound = true;
+                flow.on('hyva:flow:on-lab', (event) => {
+                    logLine('api', `on() handler -> ${format(event.detail)}`);
+                });
+                logLine('api', 'on() listening for hyva:flow:on-lab. Use trigger() to fire it.');
+            },
+            triggerOn: () => {
+                const flow = getFlow();
+                if (!flow) {
+                    return;
+                }
+                const detail = { stamp: Date.now(), via: 'trigger' };
+                flow.trigger('hyva:flow:on-lab', detail);
+                logLine('api', `trigger('hyva:flow:on-lab') dispatched ${format(detail)}.`);
+            },
+            selectTargets: () => withTargets((selection) => {
+                selection.forEach((node, index) => {
+                    setTimeout(() => highlightNode(node), index * 120);
+                });
+                logLine('api', `select('${sampleSelector}') matched ${selection.length} nodes.`);
+            }),
+            first: () => withTargets((selection) => {
+                const firstNode = selection.first();
+                if (firstNode) {
+                    highlightNode(firstNode);
+                    logLine('api', `first() => ${describeTarget(firstNode)}`);
+                } else {
+                    logLine('api', 'first() returned undefined.');
+                }
+            }),
+            each: () => withTargets((selection) => {
+                let index = 0;
+                selection.each((node) => {
+                    index += 1;
+                    logLine('api', `each -> ${describeTarget(node)} (#${index})`);
+                });
+            }),
+            forEach: () => withTargets((selection) => {
+                selection.forEach((node, index) => {
+                    logLine('api', `forEach -> ${describeTarget(node)} (#${index + 1})`);
+                });
+            }),
+            toArray: () => withTargets((selection) => {
+                const nodes = selection.toArray();
+                logLine('api', `toArray() => [${nodes.map((node) => describeTarget(node)).join(', ')}]`);
+            }),
+            hasClass: () => withTargets((selection) => {
+                const result = selection.hasClass('is-accent');
+                logLine('api', `hasClass('is-accent') => ${result}`);
+            }),
+            toggleClass: () => withTargets((selection) => {
+                selection.toggleClass('is-accent');
+                logLine('api', 'toggleClass(\'is-accent\') toggled accent borders.');
+                syncAllStateClasses();
+            }),
+            addClass: () => withTargets((selection) => {
+                selection.addClass('is-selected');
+                logLine('api', 'addClass(\'is-selected\') applied.');
+                syncAllStateClasses();
+            }),
+            removeClass: () => withTargets((selection) => {
+                selection.removeClass('is-selected');
+                logLine('api', 'removeClass(\'is-selected\') cleared selection.');
+                syncAllStateClasses();
+            }),
+            apply: () => withTargets((selection) => {
+                apiState.applyToggle = !apiState.applyToggle;
+                selection.apply('is-applied', apiState.applyToggle ? 1 : 0);
+                logLine('api', `apply('is-applied', ${apiState.applyToggle}) executed.`);
+                syncAllStateClasses();
+            }),
+            setAttr: () => withTargets((selection) => {
+                const states = ['idle', 'active', 'pending'];
+                apiState.attrStep = (apiState.attrStep + 1) % states.length;
+                const next = states[apiState.attrStep];
+                selection.set('data-flow-state', next);
+                refreshAttrBadges();
+                logLine('api', `set('data-flow-state', '${next}') updated ${selection.length} nodes.`);
+            }),
+            onEvent: () => withTargets((selection) => {
+                if (apiState.onEventBound) {
+                    logLine('api', 'onEvent(click) already attached to the tiles.');
+                    return;
+                }
+                apiState.onEventBound = true;
+                selection.onEvent('click', (event) => {
+                    const node = event.currentTarget || event.target;
+                    if (node && node.classList) {
+                        node.classList.toggle('is-selected');
+                        syncStateClasses(node);
+                    }
+                    logLine('api', `onEvent(click) -> toggled ${describeTarget(node)}.`);
+                });
+                logLine('api', 'onEvent(click) attached. Click a tile to trigger the handler.');
+            }),
+        };
+
+        const toggleRandomChainCard = () => {
+            const cards = Array.from(document.querySelectorAll('[data-chain-card]'));
+            if (!cards.length) {
+                updateChainMessage('Chain demo cards not found.');
+                return;
+            }
+            const target = cards[Math.floor(Math.random() * cards.length)];
+            target.classList.toggle('is-selected');
+            const status = target.classList.contains('is-selected') ? 'selected' : 'deselected';
+            updateChainMessage(`${describeTarget(target)} ${status} via toggle button.`);
+            syncStateClasses(target);
+        };
+
+        const highlightCombinedSelector = () => {
+            const flow = getFlow();
+            if (!flow) {
+                return;
+            }
+            const selection = flow.select('.hyvaflow-chain-card.is-selected');
+            if (!selection.length) {
+                updateChainMessage('No cards are currently selected. Click a tile first, then rerun the combined selector.');
+                setChainSnippet('combined');
+                return;
+            }
+            highlightSelection(selection);
+            updateChainMessage(`Combined selector matched ${selection.length} card(s).`);
+            setChainSnippet('combined');
+        };
+
+        const highlightFilteredWarm = () => {
+            const flow = getFlow();
+            if (!flow) {
+                return;
+            }
+            const warmSelected = flow.select('.hyvaflow-chain-card')
+                .toArray()
+                .filter((card) => card.classList.contains('is-selected') && card.dataset.tone === 'warm');
+            highlightSelection(warmSelected);
+            const message = warmSelected.length
+                ? `Filter approach returned ${warmSelected.length} warm + selected card(s).`
+                : 'No warm cards are selected right now.';
+            updateChainMessage(message);
+            setChainSnippet('filtered');
+        };
+
+        const showChainedPitfall = () => {
+            const flow = getFlow();
+            if (!flow) {
+                return;
+            }
+            const nested = flow.select('.hyvaflow-chain-card').select('.is-selected');
+            const message = `Chained select returned ${nested.length} because the second call only searches inside each card. Combine selectors or filter instead.`;
+            updateChainMessage(message);
+            setChainSnippet('misuse');
+        };
+
+        Array.from(actionButtons).forEach((btn) => {
+            btn.addEventListener('click', () => {
+                const name = btn.dataset.flowAction || 'unknown';
+                const handler = apiActions[name];
+                if (typeof handler === 'function') {
+                    handler();
+                } else {
+                    logLine('api', `No demo registered for ${name}.`);
+                }
+            });
+        });
+
+        const wireDomListener = () => {
+            const flow = getFlow();
+            if (!flow) {
+                return;
+            }
+            if (apiState.domListenerBound) {
+                logLine('dom', 'addDomListener already wired for .hyvaflow-dom-node.');
+                return;
+            }
+            apiState.domListenerBound = true;
+            flow.addDomListener('select', '.hyvaflow-dom-node', ({ target }) => {
+                logLine('dom', `addDomListener(select) processed ${describeDomNode(target)}.`);
+            });
+            flow.addDomListener('click', '.hyvaflow-dom-node', (event) => {
+                const target = event.target && event.target.closest('.hyvaflow-dom-node');
+                if (target) {
+                    highlightNode(target);
+                    logLine('dom', `addDomListener(click) fired for ${describeDomNode(target)}.`);
+                }
+            });
+            logLine('dom', 'addDomListener wired. Click any .hyvaflow-dom-node or add a new one to test.');
+        };
+
+        const addDomNode = () => {
+            if (!domArea) {
+                logLine('dom', 'DOM lab container not found.');
+                return;
+            }
+            apiState.domNodeCount += 1;
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'action secondary hyvaflow-dom-node rounded-full border border-slate-300 px-3 py-1 text-sm shadow-sm transition duration-200';
+            btn.dataset.node = `dynamic-${apiState.domNodeCount}`;
+            btn.textContent = `Dynamic ${apiState.domNodeCount}`;
+            domArea.appendChild(btn);
+            syncStateClasses(btn);
+            logLine('dom', `Added ${describeDomNode(btn)}. addDomListener will bind automatically once wired.`);
+        };
+
+        const bindListeners = () => {
+            const flow = getFlow();
+            if (!flow || state.listenersBound) {
+                if (state.listenersBound) {
+                    logLine('event', 'Listeners already registered.');
+                }
+                return;
+            }
+            state.listenersBound = true;
+            flow.on('hyva:flow:ready', () => logLine('event', 'hyva:flow:ready received (Alpine init).'));
+            flow.on('hyva:flow:dom:refresh', () => logLine('event', 'hyva:flow:dom:refresh received.'));
+            flow.on('hyva:flow:demo', (event) => {
+                logLine('event', `hyva:flow:demo detail => ${format(event.detail)}`);
+            });
+            logLine('event', 'Demo listeners registered.');
+        };
+
+        const triggerDemoEvent = () => {
+            const flow = getFlow();
+            if (!flow) {
+                return;
+            }
+            const payload = {
+                source: 'demo-template',
+                timestamp: Date.now(),
+                note: 'Triggered via hyvaflow.trigger',
+            };
+            flow.trigger('hyva:flow:demo', payload);
+            logLine('trigger', `hyvaflow.trigger('hyva:flow:demo', ${format(payload)}) called.`);
+        };
+
+        const emitReady = () => {
+            logLine('lifecycle', 'Dispatching alpine:init to stimulate hyva:flow:ready.');
+            document.dispatchEvent(new CustomEvent('alpine:init'));
+        };
+
+        const emitRefresh = () => {
+            const flow = getFlow();
+            if (!flow) {
+                return;
+            }
+            flow.trigger('hyva:flow:dom:refresh');
+            logLine('lifecycle', 'hyva:flow:dom:refresh dispatched manually.');
+        };
+
+        const selectCards = () => {
+            const flow = getFlow();
+            if (!flow) {
+                return;
+            }
+            const cards = flow.select('.hyvaflow-demo-card');
+            cards.forEach((card, index) => {
+                highlightNode(card, highlightClasses, 1200 + (index * 100));
+            });
+            const message = cards.length
+                ? `${cards.length} node(s) highlighted via hyvaflow.select('.hyvaflow-demo-card').`
+                : 'No nodes matched the selector.';
+            logLine('select', message);
+            if (selectResult) {
+                selectResult.textContent = message;
+            }
+        };
+
+        const listSelectedCards = () => {
+            const flow = getFlow();
+            if (!flow) {
+                return;
+            }
+            const selectedCards = flow.select('.hyvaflow-demo-card.is-selected').toArray();
+            const ids = selectedCards
+                .map((card) => card.getAttribute('data-card'))
+                .filter(Boolean);
+            const message = ids.length
+                ? `Selected cards: ${ids.join(', ')}`
+                : 'No cards are currently selected.';
+            logLine('select', message);
+            if (selectResult) {
+                selectResult.textContent = message;
+            }
+        };
+
+        const toggleCardSelection = (event) => {
+            const targetCard = event.target.closest('.hyvaflow-demo-card');
+            if (!targetCard) {
+                return;
+            }
+            const flow = getFlow();
+            if (!flow) {
+                return;
+            }
+            const cardId = targetCard.getAttribute('data-card');
+            if (!cardId) {
+                return;
+            }
+            const [card] = flow.select('[data-card="' + cardId + '"]');
+            if (!card) {
+                return;
+            }
+            card.classList.toggle('is-selected');
+            const status = card.classList.contains('is-selected') ? 'selected' : 'deselected';
+            syncStateClasses(card);
+            logLine('select', `Card ${cardId} ${status} via dynamic hyvaflow.select()`);
+        };
+
+        const simulateHtmxSwap = () => {
+            logLine('htmx', 'Dispatching synthetic htmx:afterSwap event.');
+            document.dispatchEvent(new CustomEvent('htmx:afterSwap'));
+        };
+
+        const enableAlpineMock = () => {
+            if (state.alpineMockEnabled) {
+                logLine('alpine', 'Mock Alpine.dispatch already enabled.');
+                return;
+            }
+            state.alpineMockEnabled = true;
+            const existing = window.Alpine || {};
+            const originalDispatch = typeof existing.dispatch === 'function'
+                ? existing.dispatch.bind(existing)
+                : null;
+
+            window.Alpine = Object.assign({}, existing, {
+                dispatch(event, detail) {
+                    logLine('alpine', `Alpine.dispatch -> ${event} | ${format(detail)}`);
+                    if (originalDispatch) {
+                        return originalDispatch(event, detail);
+                    }
+                    return undefined;
+                },
+            });
+            logLine('alpine', 'Mock Alpine.dispatch enabled. hyvaflow.trigger will forward payloads here.');
+        };
+
+        const triggerAlpineEvent = () => {
+            const flow = getFlow();
+            if (!flow) {
+                return;
+            }
+            const detail = { level: 'info', id: Math.random().toString(36).slice(2, 7) };
+            flow.trigger('hyva:flow:alpine-demo', detail);
+            logLine('alpine', `hyvaflow.trigger('hyva:flow:alpine-demo') invoked to demonstrate Alpine bridge.`);
+        };
+
+        const clearLog = () => {
+            if (logEl) {
+                logEl.textContent = '';
+            }
+        };
+
+        button('hyvaflow-register-listeners')?.addEventListener('click', bindListeners);
+        button('hyvaflow-trigger-event')?.addEventListener('click', triggerDemoEvent);
+        button('hyvaflow-emit-ready')?.addEventListener('click', emitReady);
+        button('hyvaflow-emit-refresh')?.addEventListener('click', emitRefresh);
+        button('hyvaflow-select-cards')?.addEventListener('click', selectCards);
+        button('hyvaflow-list-selected')?.addEventListener('click', listSelectedCards);
+        button('hyvaflow-htmx-swap')?.addEventListener('click', simulateHtmxSwap);
+        button('hyvaflow-enable-alpine')?.addEventListener('click', enableAlpineMock);
+        button('hyvaflow-trigger-alpine-event')?.addEventListener('click', triggerAlpineEvent);
+        button('hyvaflow-clear-log')?.addEventListener('click', clearLog);
+        button('hyvaflow-wire-dom-listener')?.addEventListener('click', wireDomListener);
+        button('hyvaflow-add-dom-node')?.addEventListener('click', addDomNode);
+        button('hyvaflow-chain-toggle')?.addEventListener('click', toggleRandomChainCard);
+        button('hyvaflow-chain-combined')?.addEventListener('click', highlightCombinedSelector);
+        button('hyvaflow-chain-filter')?.addEventListener('click', highlightFilteredWarm);
+        button('hyvaflow-chain-misuse')?.addEventListener('click', showChainedPitfall);
+        cardGrid?.addEventListener('click', toggleCardSelection);
+        chainGrid?.addEventListener('click', (event) => {
+            const card = event.target.closest('[data-chain-card]');
+            if (!card) {
+                return;
+            }
+            card.classList.toggle('is-selected');
+            const status = card.classList.contains('is-selected') ? 'selected' : 'deselected';
+            syncStateClasses(card);
+            highlightNode(card);
+            updateChainMessage(`${describeTarget(card)} ${status} via direct click.`);
+        });
+
+        if (window.hyvaflow) {
+            bindListeners();
+            logLine('init', 'Hyvä Flow detected. Demo wired automatically.');
+        } else {
+            logLine('init', 'Waiting for window.hyvaflow. Click "Register demo listeners" after it loads.');
+        }
+    };
+
+    if (document.readyState === 'complete' || document.readyState === 'interactive') {
+        init();
+    } else {
+        document.addEventListener('DOMContentLoaded', init, { once: true });
+    }
+})();
+
+</script>

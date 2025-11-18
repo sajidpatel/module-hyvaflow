@@ -1,0 +1,77 @@
+<?php
+/** @var \Magento\Framework\View\Element\Template $block */
+?>
+<div class="hyvaflow-examples hyva-prose space-y-6">
+    <header>
+        <h1><?= $block->escapeHtml(__('3 Hyvä Flow Examples')) ?></h1>
+        <p><?= $block->escapeHtml(__('Use this page to smoke test the Hyvä Flow event utilities.')) ?></p>
+    </header>
+
+    <section class="border rounded p-4 space-y-3">
+        <h2 class="text-lg font-semibold"><?= $block->escapeHtml(__('Event Demo')) ?></h2>
+        <p><?= $block->escapeHtml(__('Click the buttons to trigger Hyvä Flow events. Watch the log update below.')) ?></p>
+        <div class="flex gap-2">
+            <button type="button" class="action primary" id="hyvaflow-demo-trigger">
+                <?= $block->escapeHtml(__('Trigger hyva:flow:demo event')) ?>
+            </button>
+            <button type="button" class="action secondary" id="hyvaflow-demo-refresh">
+                <?= $block->escapeHtml(__('Simulate DOM refresh')) ?>
+            </button>
+        </div>
+        <pre id="hyvaflow-demo-log" class="bg-black text-green-200 text-sm rounded p-3 overflow-auto"></pre>
+    </section>
+
+    <section class="border rounded p-4 space-y-3">
+        <h2 class="text-lg font-semibold"><?= $block->escapeHtml(__('Usage Notes')) ?></h2>
+        <ul class="list-disc pl-6 space-y-2">
+            <li><?= $block->escapeHtml(__('Load app/code/SajidPatel/HyvaFlow/view/frontend/web/dist/hyvaflow-core.js (required) and, if you need DOM helpers, hyvaflow.js.')) ?></li>
+            <li><?= $block->escapeHtml(__('Listen for any custom event via window.hyvaflow.on(eventName, handler).')) ?></li>
+            <li><?= $block->escapeHtml(__('Trigger Alpine components with window.hyvaflow.trigger(eventName, detail).')) ?></li>
+        </ul>
+    </section>
+</div>
+
+<script>
+(() => {
+    const log = document.getElementById('hyvaflow-demo-log');
+    const triggerBtn = document.getElementById('hyvaflow-demo-trigger');
+    const refreshBtn = document.getElementById('hyvaflow-demo-refresh');
+
+    const logLine = (message) => {
+        if (!log) return;
+        const now = new Date().toLocaleTimeString();
+        log.textContent = `[${now}] ${message}\n` + log.textContent;
+    };
+
+    const attachHandlers = () => {
+        const flow = window.hyvaflow;
+        if (!flow) {
+            logLine('window.hyvaflow is not available. Ensure dist/hyvaflow-core.js (and optional dom plugin) is loaded.');
+            return;
+        }
+
+        flow.on('hyva:flow:ready', () => logLine('hyva:flow:ready received.'));
+        flow.on('hyva:flow:dom:refresh', () => logLine('hyva:flow:dom:refresh received.'));
+        flow.on('hyva:flow:demo', (event) => {
+            const detail = JSON.stringify(event.detail || {});
+            logLine(`hyva:flow:demo payload => ${detail}`);
+        });
+
+        triggerBtn?.addEventListener('click', () => {
+            flow.trigger('hyva:flow:demo', { source: 'examples-page', ts: Date.now() });
+            logLine('hyva:flow:demo dispatched.');
+        });
+
+        refreshBtn?.addEventListener('click', () => {
+            flow.trigger('hyva:flow:dom:refresh');
+            logLine('hyva:flow:dom:refresh dispatched manually.');
+        });
+    };
+
+    if (document.readyState === 'complete') {
+        attachHandlers();
+    } else {
+        document.addEventListener('DOMContentLoaded', attachHandlers, { once: true });
+    }
+})();
+</script>

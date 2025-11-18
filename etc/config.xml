@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:App/etc/config.xsd">
+    <default>
+        <hyvaflow>
+            <general>
+                <load_core>1</load_core>
+                <load_dom_helper>1</load_dom_helper>
+            </general>
+        </hyvaflow>
+    </default>
+</config>

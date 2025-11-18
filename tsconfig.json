@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "target": "es2017",
+    "module": "esnext",
+    "moduleResolution": "node",
+    "strict": false,
+    "allowJs": false,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "esModuleInterop": true,
+    "lib": ["dom", "es2017"],
+    "baseUrl": "./view/frontend/web/src"
+  },
+  "include": ["view/frontend/web/src/**/*"]
+}

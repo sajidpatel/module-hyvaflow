@@ -1,6 +1,77 @@
 # Hyvä Flow – Frontend Event & DOM Utility Layer
 
-`hyvaflow-dom.js` is a lightweight client-side helper that gives every Hyvä (or vanilla) storefront a shared event bus and DOM utility toolkit. It replaces ad-hoc global scripts such as `sparkyJs` with a predictable API for:
+## Introduction
+
+### 1. Why Hyvä Flow
+
+Modern Hyvä storefronts rely on Alpine, HTMX, drawer controllers, inline scripts, and various third-party tools — all competing for timing, DOM access, and event coordination. Without a shared layer, each script rebuilds the same patterns: global events, DOM refresh handling, cross-component signalling, and reattaching listeners after HTMX swaps.
+
+Hyvä Flow solves this by providing a unified, predictable frontend runtime.
+It eliminates fragmented logic and replaces scattered ad-hoc scripts with a single event and DOM coordination layer designed specifically for Hyvä and Magento.
+
+→ Want the long-form rationale, architecture background, and migration tips? Read [docs/WHY-USE-HYVA-FLOW.md](docs/WHY-USE-HYVA-FLOW.md).
+
+### 2. What is Hyvä Flow
+
+Hyvä Flow is a lightweight global event bus + DOM utility toolkit that sits underneath Alpine, HTMX, and vanilla JavaScript.
+
+It provides:
+
+- A namespaced, global event channel (`hyva:*`) for cross-component communication
+- Automatic lifecycle handling for Alpine init, HTMX swaps, and DOM mutations
+- A chainable DOM selection/mutation wrapper that automatically rebinds itself
+- A minimal, extensible plugin system for DOM helpers, analytics adapters, and UI controllers
+
+Every script on the page — Alpine components, HTMX fragments, layout templates, or third-party integrations — can communicate through `window.hyvaflow` without direct coupling.
+
+### 3. How Hyvä Flow works
+
+Install the Magento module (via Composer or VCS), and Hyvä Flow will:
+
+- Boot a global singleton:
+  `window.hyvaflow = new HyvaFlow()`
+
+- Emit lifecycle events such as:
+  - `hyva:flow:boot`
+  - `hyva:flow:ready` (after `alpine:init`)
+  - `hyva:flow:dom:refresh` (after HTMX swaps or DOM updates)
+
+- Forward events to Alpine via `Alpine.dispatch` when available
+- Provide chainable DOM helpers via:
+  `window.hyvaflow.select('.selector')`
+- Allow optional plugin registration for enhancements or integrations
+
+Typical usage:
+
+```js
+window.hyvaflow.trigger('hyva:cart:add', { sku, qty });
+window.hyvaflow.on('hyva:drawer:cart:open', () => drawer.open());
+window.hyvaflow.select('.tile').addClass('highlight');
+```
+
+Once on the page, any component can interact with the runtime through simple, readable APIs.
+
+### 4. What you can achieve with Hyvä Flow
+
+Hyvä Flow becomes essential when your frontend requires:
+
+- Cross-component signals (e.g., PDP → header badge, drawer → body lock)
+- Decoupled UI coordination (cart drawer, menu toggles, modals, step indicators)
+- Analytics hooks without modifying UI components
+- Behaviour inheritance for dynamically injected DOM nodes
+- Third-party tool integrations that need stable lifecycle and semantic events
+- A thin, universal pub/sub layer that lives outside Alpine component scopes
+
+Hyvä Flow complements Alpine — it does not replace it.
+Alpine handles state and templating; Hyvä Flow handles everything that requires global communication or DOM lifecycle awareness.
+
+If your storefront needs predictable global events, late-bound DOM listeners, or unified interaction between HTMX, Alpine, and custom JavaScript, Hyvä Flow becomes the integration layer that keeps everything consistent.
+
+If you'd like the full README including Installation, Bootstrapping, Bundle Strategy, Plugin System, Lifecycle Config, API Reference, and Examples — just say **“assemble the full README.md”**.
+
+# Hyvä Flow – Frontend Event & DOM Utility Layer
+
+`hyvaflow-dom.js` is a lightweight client-side helper that gives every Hyvä (or vanilla) storefront a shared event bus and DOM utility toolkit. It replaces ad-hoc global scripts with a predictable API for:
 
 1. Publishing and subscribing to global lifecycle events (page ready, HTMX swaps, Alpine dispatches, etc.).
 2. Triggering cross-component actions like “add to cart”, “open cart drawer”, “show mobile menu”, or any other UI change.

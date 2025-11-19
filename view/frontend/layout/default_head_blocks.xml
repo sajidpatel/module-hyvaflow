@@ -11,7 +11,7 @@
     <head>
         <!-- Load Hyvä Flow core (event bus) -->
         <script src="SajidPatel_HyvaFlow::dist/hyvaflow-core.js" />
-        <script src="SajidPatel_HyvaFlow::dist/hyvaflow.js" />
+        <script src="SajidPatel_HyvaFlow::dist/hyvaflow-dom.js" />
         <!-- Optional DOM plugin that augments the core with selection helpers -->
     </head>
 </page>

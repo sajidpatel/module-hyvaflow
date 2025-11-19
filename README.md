@@ -1,6 +1,6 @@
 # Hyvä Flow – Frontend Event & DOM Utility Layer
 
-`hyvaflow.js` is a lightweight client-side helper that gives every Hyvä (or vanilla) storefront a shared event bus and DOM utility toolkit. It replaces ad-hoc global scripts such as `sparkyJs` with a predictable API for:
+`hyvaflow-dom.js` is a lightweight client-side helper that gives every Hyvä (or vanilla) storefront a shared event bus and DOM utility toolkit. It replaces ad-hoc global scripts such as `sparkyJs` with a predictable API for:
 
 1. Publishing and subscribing to global lifecycle events (page ready, HTMX swaps, Alpine dispatches, etc.).
 2. Triggering cross-component actions like “add to cart”, “open cart drawer”, “show mobile menu”, or any other UI change.
@@ -43,7 +43,7 @@ You can then require the package normally (Composer will fetch it from the VCS U
 Hyvä Flow ships as two ES module bundles stored in `view/frontend/web/dist`:
 
 - `hyvaflow-core.js` – required event-bus runtime (always include this). Minified version: `hyvaflow-core.min.js`.
-- `hyvaflow.js` – optional DOM helper plugin (selection API, `.apply`, `.set`, `.addDomListener`, etc.). Minified version: `hyvaflow.min.js`.
+- `hyvaflow-dom.js` – optional DOM helper plugin (selection API, `.apply`, `.set`, `.addDomListener`, etc.). Minified version: `hyvaflow-dom.min.js`.
 
 The default layout XML (`view/frontend/layout/default_head_blocks.xml`) loads both scripts so existing templates keep working. To run a “bus only” setup, include just `hyvaflow-core.js`.
 
@@ -79,7 +79,7 @@ npm run typecheck  # optional: static type checking via tsc --noEmit
 npm run lint       # optional: ESLint over view/frontend/web/src
 ```
 
-The bundler emits ES5-compatible IIFEs that keep the global API (`window.HyvaFlow` / `window.hyvaflow`) intact, so Magento can continue loading `dist/hyvaflow-core.js` (and optionally `dist/hyvaflow.js`) with classic `<script>` tags while you author modern modules under `view/frontend/web/src`.
+The bundler emits ES5-compatible IIFEs that keep the global API (`window.HyvaFlow` / `window.hyvaflow`) intact, so Magento can continue loading `dist/hyvaflow-core.js` (and optionally `dist/hyvaflow-dom.js`) with classic `<script>` tags while you author modern modules under `view/frontend/web/src`.
 
 ### Event Namespaces & Helper
 
@@ -327,7 +327,7 @@ If a given widget is already an Alpine component and you only need local state, 
 ## Resources
 
 - `/view/frontend/web/dist/hyvaflow-core.js` – readable event-bus bundle (minified `/view/frontend/web/dist/hyvaflow-core.min.js` is also available).
-- `/view/frontend/web/dist/hyvaflow.js` – optional DOM helper plugin (minified `/view/frontend/web/dist/hyvaflow.min.js` is also available).
+- `/view/frontend/web/dist/hyvaflow-dom.js` – optional DOM helper plugin (minified `/view/frontend/web/dist/hyvaflow-dom.min.js` is also available).
 - `/view/frontend/web/src/` – modular source files (`eventBus.ts`, `domHelpers.ts`, `hyvaflow.ts`, `index.ts`).
 - `/view/frontend/templates/demo.phtml` – interactive playground that exercises every API method.
 - `/view/frontend/templates/examples2.phtml` – examples of global event bus usage (search bus, cart/wishlist cross-component events).

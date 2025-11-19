@@ -11,7 +11,7 @@ This mini demo stitches together `hyvaflow-core.js` and the optional DOM helper 
 <script src="/static/frontend/Vendor/theme/en_US/SajidPatel_HyvaFlow/dist/hyvaflow-core.js"></script>
 
 <!-- Optional: DOM helper plugin (registers itself via window.hyvaflow.use) -->
-<script src="/static/frontend/Vendor/theme/en_US/SajidPatel_HyvaFlow/dist/hyvaflow.js"></script>
+<script src="/static/frontend/Vendor/theme/en_US/SajidPatel_HyvaFlow/dist/hyvaflow-dom.js"></script>
 ```
 
 Only need the event bus + lifecycle hooks? Drop the second script.
@@ -116,4 +116,4 @@ When `hyva:flow:dom:refresh` fires, cached selections invalidate and the `select
 ## 5. Putting It Together
 
 Combine the markup and scripts above for a complete playground. This mirrors the Magento template found at `view/frontend/templates/demo.phtml`, but uses plain HTML/CSS so you can run it anywhere (Storybook, CodePen, etc.). Tailor the handlers to your project to see how the core event bus and optional DOM helper complement each other.
-> Already loading `hyvaflow.js` from `dist`? You can skip the manual `window.hyvaflow.use(...)` block— the script self-registers once it detects the core runtime.
+> Already loading `hyvaflow-dom.js` from `dist`? You can skip the manual `window.hyvaflow.use(...)` block— the script self-registers once it detects the core runtime.

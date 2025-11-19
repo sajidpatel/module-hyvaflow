@@ -103,6 +103,6 @@ This clears selection caches and replays `addDomListener('select', ...)` callbac
 
 | Symptom | Likely Cause | Fix |
 | --- | --- | --- |
-| `[HyvaFlow] DOM plugin requires the core build` warning | Only `hyvaflow.js` loaded | Ensure `hyvaflow-core.js` is loaded before `hyvaflow.js`. |
+| `[HyvaFlow] DOM plugin requires the core build` warning | Only `hyvaflow-dom.js` loaded | Ensure `hyvaflow-core.js` is loaded before `hyvaflow-dom.js`. |
 | `.select()` results seem stale after HTMX swap | Cache not invalidated | Emit `hyva:flow:dom:refresh` or call `window.hyvaflow.lifecycle()` to include your swap event. |
 | Alpine components can't see `$flow` | `alpine:init` never fires | Add your own ready event via `window.hyvaflow.lifecycle({ readyEvents: ['custom:alpine:init'] })`. |

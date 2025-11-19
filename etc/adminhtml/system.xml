@@ -15,7 +15,7 @@
                 </field>
                 <field id="load_dom_helper" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Load DOM Helper Bundle</label>
-                    <comment>Toggle the optional Hyvä Flow DOM helper (hyvaflow.js). Disable if you load a custom build or only need the core event bus.</comment>
+                    <comment>Toggle the optional Hyvä Flow DOM helper (hyvaflow-dom.js). Disable if you load a custom build or only need the core event bus.</comment>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
             </group>

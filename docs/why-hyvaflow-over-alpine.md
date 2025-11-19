@@ -207,12 +207,12 @@ All parts work independently — you can use just the event bus, or the full uti
 
 ## 📦 Installation
 
-1. Copy `view/frontend/web/dist/hyvaflow-core.js` (and optionally `hyvaflow.js` if you need DOM helpers) into your Hyvä child theme or module.  
+1. Copy `view/frontend/web/dist/hyvaflow-core.js` (and optionally `hyvaflow-dom.js` if you need DOM helpers) into your Hyvä child theme or module.  
 2. Add to layout:
    ```xml
    <head>
      <script src="SajidPatel_HyvaFlow::dist/hyvaflow-core.js"/>
-     <script src="SajidPatel_HyvaFlow::dist/hyvaflow.js"/>
+     <script src="SajidPatel_HyvaFlow::dist/hyvaflow-dom.js"/>
    </head>
    ```
 3. Use anywhere in your JS or templates:

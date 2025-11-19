@@ -16,13 +16,13 @@ Hyvä Flow ships two distributable bundles (plus minified variants). Pick the co
       │                              │
       ▼                              ▼
  hyva dom plugin              Future plugins
-  (hyvaflow.js)                 (analytics, HTMX helpers, etc.)
+  (hyvaflow-dom.js)             (analytics, HTMX helpers, etc.)
 ```
 
 ### Quick Decision Checklist
 
 1. **Only need an event bus + lifecycle hooks?** Load `hyvaflow-core.js` and install any plugins you need via `window.hyvaflow.use()`.
-2. **Rely on Hyvä Flow's DOM helpers (`select`, `addDomListener`, etc.)?** Load both `hyvaflow-core.js` and `hyvaflow.js` (core first). The DOM bundle registers itself as the `dom` plugin automatically.
+2. **Rely on Hyvä Flow's DOM helpers (`select`, `addDomListener`, etc.)?** Load both `hyvaflow-core.js` and `hyvaflow-dom.js` (core first). The DOM bundle registers itself as the `dom` plugin automatically.
 3. **Building a custom plugin?** Ship it as a separate script that calls `window.hyvaflow.use(pluginDefinition, options?)` once the core bundle is available.
 
 ## Core Only (`hyvaflow-core.js`)
@@ -31,7 +31,7 @@ Hyvä Flow ships two distributable bundles (plus minified variants). Pick the co
 
 Use this for headless integrations, analytics hooks, or projects that already have their own DOM utilities.
 
-## Core + DOM (`hyvaflow-core.js` + `hyvaflow.js`)
+## Core + DOM (`hyvaflow-core.js` + `hyvaflow-dom.js`)
 
 ✅ Load both scripts (core first) to get the full selection wrapper (`.select`, `.find`, `.closest`), DOM event delegation, and `addDomListener()` helpers.
 

@@ -21,13 +21,13 @@ const buildTargets = [
   },
   {
     entry: resolve(moduleRoot, 'view/frontend/web/src/index.ts'),
-    outfile: resolve(distDir, 'hyvaflow.js'),
+    outfile: resolve(distDir, 'hyvaflow-dom.js'),
     minify: false,
     sourcemap: true,
   },
   {
     entry: resolve(moduleRoot, 'view/frontend/web/src/index.ts'),
-    outfile: resolve(distDir, 'hyvaflow.min.js'),
+    outfile: resolve(distDir, 'hyvaflow-dom.min.js'),
     minify: true,
     sourcemap: false,
   },

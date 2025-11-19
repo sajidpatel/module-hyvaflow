@@ -10,14 +10,8 @@
 
     <head>
         <!-- Load Hyvä Flow core (event bus) -->
-        <block class="Magento\Framework\View\Element\Template"
-               name="sajidpatel.hyvaflow.core"
-               template="SajidPatel_HyvaFlow::head/core-script.phtml"
-               ifconfig="hyvaflow/general/load_core"/>
+        <script src="SajidPatel_HyvaFlow::dist/hyvaflow-core.js" />
+        <script src="SajidPatel_HyvaFlow::dist/hyvaflow.js" />
         <!-- Optional DOM plugin that augments the core with selection helpers -->
-        <block class="Magento\Framework\View\Element\Template"
-               name="sajidpatel.hyvaflow.dom.helper"
-               template="SajidPatel_HyvaFlow::head/dom-helper-script.phtml"
-               ifconfig="hyvaflow/general/load_dom_helper"/>
     </head>
 </page>

@@ -1,9 +1,11 @@
 <?xml version="1.0"?>
-<acl xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-     xsi:noNamespaceSchemaLocation="urn:magento:framework:Acl/etc/acl.xsd">
-    <resources>
-        <resource id="Magento_Backend::admin">
-            <resource id="SajidPatel_HyvaFlow::config" title="Hyvä Flow Settings" sortOrder="80"/>
-        </resource>
-    </resources>
-</acl>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Acl/etc/acl.xsd">
+    <acl>
+        <resources>
+            <resource id="Magento_Backend::admin">
+                <resource id="SajidPatel_HyvaFlow::config" title="Hyva Flow Settings" sortOrder="80"/>
+            </resource>
+        </resources>
+    </acl>
+</config>

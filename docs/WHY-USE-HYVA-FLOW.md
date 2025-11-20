@@ -1,153 +1,195 @@
-# Why Use Hyvä Flow
+# Why Use Hyvä Flow (Core + DOM)
 
-Modern Hyvä storefronts combine Alpine.js, HTMX, inline scripts, layout XML injections, and third-party integrations. While each tool solves its own concerns, none provides a unified global runtime for event coordination, DOM lifecycle awareness, and cross-component communication.
+## What if you could...
 
-Hyvä Flow addresses this gap by providing a predictable, global frontend layer designed specifically for Magento + Hyvä environments.
+Have one unified layer beneath Alpine.js, HTMX, vanilla JS, Magento
+inline scripts, and third-party widgets that provides:
 
----
+-   A namespaced global event bus
+-   A DOM utility wrapper (jQuery-like, zero overhead)
+-   Guaranteed event delivery without race conditions
+-   Auto-rebinding DOM listeners after HTMX swaps
+-   Delegated event handling that never breaks
+-   Automatic cache invalidation for DOM selections
+-   One lifecycle shared by ALL components
+-   Late listeners still receiving early events (queue + replay)
 
-## 1. A Global Event Bus That Alpine.js Doesn’t Provide
+What if every component --- Alpine or not --- always knew **when the DOM
+is ready**, **when it refreshed**, and **how to communicate globally**?
 
-Alpine is intentionally local: events only bubble through the DOM tree.  
-This fails when components are unrelated, dynamically injected, or rendered in different layout regions.
+------------------------------------------------------------------------
 
-Hyvä Flow introduces a consistent, namespaced global event channel:
+## So that...
 
-```js
-hyvaflow.trigger('hyva:cart:add', { sku });
-hyvaflow.on('hyva:drawer:open', callback);
+Your storefront becomes **deterministic and stable**, even in dynamic
+Magento/Hyvä environments.
+
+### No more race conditions
+
+-   Events fired before Alpine is ready → Delivered anyway
+-   HTMX swaps replacing DOM nodes → Events replayed + listeners
+    rebound
+-   Components initialised out of order → Still receive all events
+    correctly
+
+### No more fragile DOM listeners
+
+HyväFlow DOM ensures: - Delegated events always reach correct targets
+- Listeners auto-rebind after refresh
+- `select()` callbacks re-run when new nodes appear
+- Cache invalidation prevents stale DOM references
+
+### No more "DOM wasn't ready" bugs
+
+Hyvä Flow handles: - `DOMContentLoaded` - `alpine:init` -
+`htmx:afterSwap` - `hyva:flow:dom:refresh`
+
+Consistently.
+
+------------------------------------------------------------------------
+
+## For example...
+
+### Example 1: Mini-cart breaks after HTMX swap
+
+**Before:**
+HTMX replaces the mini-cart → old listeners lost → buttons stop working.
+
+**With Hyvä Flow:**
+`hyva:flow:dom:refresh` fires → DOM listeners rebind automatically →
+mini-cart always works.
+
+------------------------------------------------------------------------
+
+### Example 2: Alpine hydrates late
+
+**Before:**
+Event dispatched before Alpine ready → lost.
+
+**With Hyvä Flow Core:**
+Event is queued → replayed when Alpine loads → nothing is lost.
+
+------------------------------------------------------------------------
+
+### Example 3: Delegated events that never miss
+
+``` js
+flow.addDomListener('click', '.product-item', (e) => {
+  e.currentTarget.classList.add('active')
+})
 ```
 
-This enables clean, decoupled communication across the entire storefront — without custom global scripts, ad-hoc dispatchers, or brittle DOM event bubbling.
+Hyvä Flow guarantees: - Correct target
+- No double-handlers
+- Works after DOM changes
 
----
+------------------------------------------------------------------------
 
-## 2. Automatic DOM Refresh Handling for HTMX
+## And that's not all...
 
-Hyvä storefronts increasingly rely on HTMX for partial page updates. Alpine.js has no built-in awareness of:
+### 1. jQuery-like DOM API
 
-- HTMX swaps  
-- fragment-level updates  
-- deferred DOM insertions  
+    flow('.item').addClass('active').set('aria-expanded', true)
 
-Hyvä Flow listens to HTMX lifecycle events and emits a guaranteed semantic event:
+Chainable, array-like, iterable.
 
-```
-hyva:flow:dom:refresh
-```
+------------------------------------------------------------------------
 
-Any component or plugin can rebind itself automatically, eliminating repeated boilerplate and “Alpine stopped working after HTMX swap” bugs.
+### 2. A unified lifecycle layer
 
----
+Normalised events:
 
-## 3. Predictable Global Lifecycle Events
+    hyva:flow:ready
+    hyva:flow:dom:refresh
 
-Magento pages involve multiple async initialisation phases:
+------------------------------------------------------------------------
 
-- DOMReady  
-- Alpine init  
-- HTMX settling  
-- Lazy-loaded fragments  
+### 3. Plugin Architecture
 
-Hyvä Flow standardises runtime coordination with global events:
+Use `flow.use()` to register plugins with shared context:
 
-- `hyva:flow:boot`  
-- `hyva:flow:ready`  
-- `hyva:flow:dom:refresh`
+    { core, window, setInstance, setConstructor }
 
-This provides a stable foundation for plugins, UI controllers, analytics, and integration logic.
+------------------------------------------------------------------------
 
----
+### 4. Zero naming collisions
 
-## 4. Chainable DOM Utility Layer
+All events namespaced:
 
-Alpine manages state, not DOM manipulation.
+    hyva:flow:{event}
 
-Hyvä Flow introduces a minimal DOM toolkit for:
+------------------------------------------------------------------------
 
-- selecting elements  
-- iterating  
-- attaching listeners  
-- manipulating classes/attributes  
-- late-binding to swapped DOM  
+### 5. Alpine integration done right
 
-Example:
+Hyvä Flow injects:
 
-```js
-hyvaflow.select('.product-tile')
-  .addClass('loaded')
-  .on('click', handler);
+    Alpine.magic('flow', () => window.hyvaflow)
+
+So you can:
+
+``` html
+<button @click="$flow.trigger('cart:add', { id: 10 })">
 ```
 
----
+------------------------------------------------------------------------
 
-## 5. Decoupled UI Coordination for Complex Stores
+# Why Hyvä Flow vs Alpine vs HTMX vs jQuery
 
-Magento storefronts often require UI behaviours that are shared, global, or cross-component:
+A high‑level comparison of the four approaches:
 
-- cart drawer  
-- mobile menu  
-- global badge updates  
-- modals  
-- stepper progress  
-- analytics tracking  
+  ---------------------------------------------------------------------------------------
+  Feature / Concern **Hyvä Flow**         **Alpine.js**    **HTMX**        **jQuery**
+  ----------------- --------------------- ---------------- --------------- --------------
+  **Global Event    ✅ Fully namespaced,  ⚠️               ❌ No global    ❌ Manual,
+  Bus**             replayable, no race   Dispatch-only,   coherent bus    unstructured
+                    conditions            no queue, no
+                                          replay
 
-Hyvä Flow provides a thin global layer for orchestration, allowing:
+  **DOM Refresh     ✅ Auto-detects HTMX  ❌ Must manually ⚠️ Triggers     ❌ Must rebind
+  Handling**        swaps + rebinds       re-init          events but no   manually
+                                                           rebinding logic
 
-- PDP triggers to update the header  
-- drawer components to lock body scroll  
-- analytics to hook into semantic events  
-- third-party scripts to subscribe without modifying templates
+  **Late Listener   ✅ Events queued +    ❌ Missed events ⚠️ Depends on   ❌ Must
+  Support**         replayed                               server triggers manually track
 
----
+  **Delegated       ✅ Native wrapper     ⚠️ Limited       ❌ Not provided ⚠️ Yes, but
+  Events**          with correct                                           manual
+                    `currentTarget`
 
-## 6. Extensible Plugin Architecture
+  **Select()        ✅ Cached +           ❌ No            ❌ No           ❌ Re-query
+  Caching**         auto-invalidates on   abstraction      abstraction     every time
+                    refresh
 
-Hyvä Flow supports plugins that hook into:
+  **Lifecycle       ✅                    ⚠️ Alpine-only   ⚠️ HTMX-only    ❌ None
+  Normalisation**   `DOMContentLoaded`,
+                    `alpine:init`, HTMX
+                    swaps unified
 
-- lifecycle events  
-- DOM wrapper extensions  
-- custom behaviours  
-- event transforms  
-- analytics pipelines  
+  **DOM Utilities** ✅ jQuery-like:       ❌ No DOM API    ❌ No DOM API   ✅ But heavy
+                    `addClass`, `set`,
+                    `closest`, `each`
 
-This provides a structured way to build reusable frontend utilities — similar to Magento’s backend service contracts, but for the frontend.
+  **Plugin          ✅ Built-in           ⚠️ Limited       ❌ None         ❌ None
+  Architecture**
 
----
+  **Ideal Use       Hyvä/Magento unified  Component        Server-driven   DOM
+  Case**            runtime               behaviour        partial updates manipulation
+  ---------------------------------------------------------------------------------------
 
-## 7. A Unified Frontend Runtime for Magento 2
+### Summary
 
-Alpine handles local component logic.  
-HTMX handles partial DOM updates.  
-Hyvä Flow handles:
+-   **Alpine = behaviour**
+-   **HTMX = HTML over the wire**
+-   **jQuery = DOM manipulation**
+-   **Hyvä Flow = the coordination layer for ALL of them**
 
-- global events  
-- DOM lifecycle  
-- cross-component communication  
-- predictable initialisation  
-- late-bound behaviour  
-- integration points for third-party tools  
+Hyvä Flow fills the missing gap: **a deterministic event + DOM +
+lifecycle layer**.
 
----
+------------------------------------------------------------------------
 
-## When You Should Use Hyvä Flow
+## Hyvä Flow = Stability + Determinism + Developer Happiness
 
-Hyvä Flow becomes essential when your storefront needs:
-
-- consistent global events  
-- UI that affects multiple regions  
-- HTMX partial rendering  
-- DOM listeners that survive swaps  
-- clean separation between modules  
-- analytics or third-party tracking  
-- predictable runtime hooks  
-- an alternative to scattered inline JS blocks  
-
----
-
-## Short Summary
-
-**Alpine.js controls what happens inside components.**  
-**Hyvä Flow controls what happens between components.**
-
-It provides the missing global glue that large Hyvä storefronts need to remain stable, predictable, and scalable.
+A unified core + DOM layer for predictable, race-free, component-safe
+behaviour across any Magento/Hyvä storefront.

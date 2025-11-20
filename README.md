@@ -9,6 +9,53 @@ Modern Hyvä storefronts rely on Alpine, HTMX, drawer controllers, inline script
 Hyvä Flow solves this by providing a unified, predictable frontend runtime.
 It eliminates fragmented logic and replaces scattered ad-hoc scripts with a single event and DOM coordination layer designed specifically for Hyvä and Magento.
 
+## 1. Fixes race conditions
+
+Ensures events fire in the correct order, eliminates “listener wasn’t ready” bugs, and prevents Alpine/HTMX timing conflicts.
+
+## 2. Guarantees Event Delivery
+
+Events are **queued and replayed**, ensuring nothing is missed --- even
+if Alpine or HTMX initialise late.
+
+## 3. Unifies the Frontend Lifecycle
+
+Normalises key lifecycle moments like **DOMContentLoaded**,
+**alpine:init**, and **htmx:afterSwap** into one predictable flow.
+
+## 4. Auto‑Rebinds DOM Listeners
+
+When HTMX swaps or Magento injects new DOM, Hyvä Flow **automatically
+re-attaches listeners** and refreshes DOM hooks.
+
+## 5. Lightweight jQuery‑Like DOM API
+
+A clean, chainable API offering: - `.addClass()` - `.closest()` -
+`.select()` - `.set()` - `.each()`
+
+## 6. Proper Delegated Event Handling
+
+Always guarantees the correct **currentTarget** and **delegateTarget**,
+preventing misfires and event confusion.
+
+## 7. Smart DOM Caching
+
+`.select()` results are cached and **auto‑invalidated** on DOM refresh
+for speed, stability, and accuracy.
+
+## 8. Cross‑Framework Event Bus
+
+A unified, namespaced channel enabling Alpine ↔ HTMX ↔ vanilla JS
+communication with no collisions.
+
+## 9. Plugin‑Ready Architecture
+
+Extend Hyvä Flow easily with custom behaviour using:
+
+    flow.use()
+
+Perfect for modular features, analytics hooks, or component behaviours.
+
 → Want the long-form rationale, architecture background, and migration tips? Read [docs/WHY-USE-HYVA-FLOW.md](docs/WHY-USE-HYVA-FLOW.md).
 
 ### 2. What is Hyvä Flow

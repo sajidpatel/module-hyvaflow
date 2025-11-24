@@ -13,6 +13,9 @@ import type {
     HyvaFlowEventName,
     HyvaFlowRuntimeConfig,
     HyvaFlowConfigureOptions,
+
+    HyvaFlowCartService,
+    HyvaFlowCartServiceConfig,
 } from './types';
 
 export type {
@@ -26,6 +29,9 @@ export type {
     HyvaFlowLifecycleEventDescriptor,
     HyvaFlowRuntimeConfig,
     HyvaFlowConfigureOptions,
+
+    HyvaFlowCartService,
+    HyvaFlowCartServiceConfig,
     HyvaFlowPluginDefinition,
 };
 
@@ -43,16 +49,21 @@ export interface HyvaFlowGlobal extends HyvaFlowCore, Partial<HyvaFlowSelection>
 }
 
 declare global {
-interface Window {
-    HyvaFlow?: HyvaFlowFactory & {
-        plugins?: HyvaFlowPluginRegistry;
-        debug?: boolean;
-    };
+    interface Window {
+        HyvaFlow?: HyvaFlowFactory & {
+            plugins?: HyvaFlowPluginRegistry;
+            debug?: boolean;
+        };
         hyvaflow?: HyvaFlowCore | HyvaFlowGlobal;
-    hyvaflowBooted?: boolean;
-    Alpine?: {
-        magic: (name: string, callback: () => any) => void;
-        [key: string]: any;
-    };
-}
+        hyvaflowBooted?: boolean;
+        Alpine?: {
+            magic: (name: string, callback: () => any) => void;
+            [key: string]: any;
+        };
+        services?: {
+            cart?: HyvaFlowCartService;
+            [key: string]: unknown;
+        };
+        hyvaflowCartServiceConfig?: HyvaFlowCartServiceConfig;
+    }
 }

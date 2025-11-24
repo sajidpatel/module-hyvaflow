@@ -1,7 +1,8 @@
 <?php
+
 declare(strict_types=1);
 
-namespace SajidPatel\HyvaFlow\Controller\Examples2;
+namespace SajidPatel\HyvaFlow\Controller\ServiceLoader;
 
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
@@ -20,7 +21,7 @@ class Index extends Action
     public function execute(): Page
     {
         $page = $this->pageFactory->create();
-        $page->getConfig()->getTitle()->set(__('Hyvä Flow Examples: Event Bus'));
+        $page->getConfig()->getTitle()->set(__('Hyvä Flow Service Loader'));
 
         return $page;
     }

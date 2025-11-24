@@ -1,0 +1,24 @@
+<?php
+/**
+ * Example usage of the Hyvä Flow serviceLoader.
+ *
+ * This file is documentation: drop the script into a shell template and
+ * queue work against the cart service before it exists.
+ */
+?>
+<div class="service-loader-example max-w-2xl mx-auto">
+    <h2 class="text-xl font-semibold mb-2">Service Loader Example</h2>
+    <p class="text-sm text-gray-600 mb-4">
+        Queue `cart` tasks immediately, but only load the cart service implementation on
+        layouts that add it. This example uses Async Alpine to load the cart service component.
+    </p>
+
+
+
+</div>
+<script>
+    window.services.cart.addProduct({sku: 'SKU123', qty: 1});
+    console.log(window.services.cart.getItems());
+
+
+</script>

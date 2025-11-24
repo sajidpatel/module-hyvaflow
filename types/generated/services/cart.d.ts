@@ -1,0 +1,32 @@
+import type { HyvaFlowCore } from '../core';
+import type { HyvaFlowCartAddDetail, HyvaFlowCartRemoveDetail, HyvaFlowCartService, HyvaFlowCartServiceConfig, HyvaFlowCartSnapshot } from '../types';
+export declare class CartService implements HyvaFlowCartService {
+    config: HyvaFlowCartServiceConfig;
+    private readonly graphqlUrl;
+    private readonly fetchFn;
+    private readonly headers;
+    private cartId?;
+    private flow?;
+    private handlersAttached;
+    constructor(config?: HyvaFlowCartServiceConfig);
+    setCartId(cartId?: string): void;
+    getCartId(): string | undefined;
+    addProduct(detail: HyvaFlowCartAddDetail): Promise<HyvaFlowCartSnapshot>;
+    removeItem(detail: HyvaFlowCartRemoveDetail): Promise<HyvaFlowCartSnapshot>;
+    fetchCart(): Promise<HyvaFlowCartSnapshot>;
+    registerFlow(flow: HyvaFlowCore): void;
+    private static resolveGraphQlUrl;
+    private normalizeQuantity;
+    private resolveCartItemId;
+    private dispatchSuccess;
+    private dispatchUpdated;
+    private dispatchError;
+    private dispatchEvent;
+    private executeGraphQl;
+    private updateCartIdFromSnapshot;
+    private handleEvent;
+    private resolveCartIdFromCheckoutConfig;
+}
+declare const cartService: CartService;
+export { cartService };
+export default cartService;

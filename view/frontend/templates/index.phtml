@@ -1,0 +1,98 @@
+<?php
+/** @var \Magento\Framework\View\Element\Template $block */
+?>
+<div class="hyvaflow-index hyva-prose max-w-4xl mx-auto p-6">
+    <header class="mb-8">
+        <h1 class="text-4xl font-bold mb-4"><?= $block->escapeHtml(__('Hyvä Flow Examples 2')) ?></h1>
+        <p class="text-lg text-gray-600">
+            <?= $block->escapeHtml(__('Explore the Hyvä Flow library with interactive examples and demonstrations.')) ?>
+        </p>
+    </header>
+
+    <div class="grid gap-6 md:grid-cols-2">
+        <!-- Demo -->
+        <div class="border rounded-lg p-6 hover:shadow-lg transition-shadow">
+            <h2 class="text-2xl font-semibold mb-3">
+                <a href="<?= $block->escapeUrl($block->getUrl('hyvaflow/demo')) ?>"
+                   class="text-blue-600 hover:text-blue-800">
+                    <?= $block->escapeHtml(__('Demo')) ?>
+                </a>
+            </h2>
+            <p class="text-gray-600 mb-4">
+                <?= $block->escapeHtml(__('Interactive demonstration of Hyvä Flow event system with live examples.')) ?>
+            </p>
+            <a href="<?= $block->escapeUrl($block->getUrl('hyvaflow/demo')) ?>"
+               class="inline-block px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+                <?= $block->escapeHtml(__('View Demo →')) ?>
+            </a>
+        </div>
+
+        <!-- Examples -->
+        <div class="border rounded-lg p-6 hover:shadow-lg transition-shadow">
+            <h2 class="text-2xl font-semibold mb-3">
+                <a href="<?= $block->escapeUrl($block->getUrl('hyvaflow/examples')) ?>"
+                   class="text-blue-600 hover:text-blue-800">
+                    <?= $block->escapeHtml(__('Examples')) ?>
+                </a>
+            </h2>
+            <p class="text-gray-600 mb-4">
+                <?= $block->escapeHtml(__('Basic examples showing how to use Hyvä Flow event utilities.')) ?>
+            </p>
+            <a href="<?= $block->escapeUrl($block->getUrl('hyvaflow/examples')) ?>"
+               class="inline-block px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+                <?= $block->escapeHtml(__('View Examples →')) ?>
+            </a>
+        </div>
+
+        <!-- Examples: Commands -->
+        <div class="border rounded-lg p-6 hover:shadow-lg transition-shadow">
+            <h2 class="text-2xl font-semibold mb-3">
+                <a href="<?= $block->escapeUrl($block->getUrl('hyvaflow/examplescommands')) ?>"
+                   class="text-blue-600 hover:text-blue-800">
+                    <?= $block->escapeHtml(__('Command Examples')) ?>
+                </a>
+            </h2>
+            <p class="text-gray-600 mb-4">
+                <?= $block->escapeHtml(__('Simple command examples demonstrating on() and trigger() methods.')) ?>
+            </p>
+            <a href="<?= $block->escapeUrl($block->getUrl('hyvaflow/examplescommands')) ?>"
+               class="inline-block px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+                <?= $block->escapeHtml(__('View Commands →')) ?>
+            </a>
+        </div>
+
+        <!-- Examples: Event Bus -->
+        <div class="border rounded-lg p-6 hover:shadow-lg transition-shadow">
+            <h2 class="text-2xl font-semibold mb-3">
+                <a href="<?= $block->escapeUrl($block->getUrl('hyvaflow/exampleseventbus')) ?>"
+                   class="text-blue-600 hover:text-blue-800">
+                    <?= $block->escapeHtml(__('Event Bus Examples')) ?>
+                </a>
+            </h2>
+            <p class="text-gray-600 mb-4">
+                <?= $block->escapeHtml(__('Advanced examples showing global event bus and cross-component communication.')) ?>
+            </p>
+            <a href="<?= $block->escapeUrl($block->getUrl('hyvaflow/exampleseventbus')) ?>"
+               class="inline-block px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+                <?= $block->escapeHtml(__('View Event Bus →')) ?>
+            </a>
+        </div>
+
+        <!-- Service Loader -->
+        <div class="border rounded-lg p-6 hover:shadow-lg transition-shadow">
+            <h2 class="text-2xl font-semibold mb-3">
+                <a href="<?= $block->escapeUrl($block->getUrl('hyvaflow/serviceloader')) ?>"
+                   class="text-blue-600 hover:text-blue-800">
+                    <?= $block->escapeHtml(__('Service Loader')) ?>
+                </a>
+            </h2>
+            <p class="text-gray-600 mb-4">
+                <?= $block->escapeHtml(__('Learn how to use the service loader to queue tasks before services are loaded.')) ?>
+            </p>
+            <a href="<?= $block->escapeUrl($block->getUrl('hyvaflow/serviceloader')) ?>"
+               class="inline-block px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+                <?= $block->escapeHtml(__('View Service Loader →')) ?>
+            </a>
+        </div>
+    </div>
+</div>

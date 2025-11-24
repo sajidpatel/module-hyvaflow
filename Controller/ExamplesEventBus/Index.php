@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace SajidPatel\HyvaFlow\Controller\ExamplesSimple;
+namespace SajidPatel\HyvaFlow\Controller\ExamplesEventBus;
 
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
@@ -20,7 +20,7 @@ class Index extends Action
     public function execute(): Page
     {
         $page = $this->pageFactory->create();
-        $page->getConfig()->getTitle()->set(__('Hyvä Flow Quick Examples'));
+        $page->getConfig()->getTitle()->set(__('Hyvä Flow Examples: Event Bus'));
 
         return $page;
     }

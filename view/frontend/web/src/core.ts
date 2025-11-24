@@ -19,6 +19,7 @@ import type {
     HyvaFlowRuntimeConfig,
 } from './types';
 
+
 export type HyvaFlowPluginContext = {
     core: HyvaFlowCore;
     window: Window;
@@ -65,6 +66,7 @@ export interface HyvaFlowCore {
     plugins: HyvaFlowPluginRegistry;
     lifecycle(config?: Partial<HyvaFlowLifecycleConfig>): HyvaFlowLifecycleConfig;
     configure(options?: HyvaFlowConfigureOptions): HyvaFlowRuntimeConfig;
+
 }
 
 type HyvaFlowWindow = Window & {
@@ -121,6 +123,7 @@ export function createHyvaFlowCore(): HyvaFlowCore {
                 lifecycle: api.lifecycle(),
             };
         },
+
     };
 
     const pluginRegistry = new Map<string, { dispose?: () => void }>();
@@ -134,6 +137,7 @@ export function createHyvaFlowCore(): HyvaFlowCore {
         target.use = api.use;
         target.lifecycle = api.lifecycle;
         target.configure = api.configure;
+
     };
 
     const pluginContextBase = {

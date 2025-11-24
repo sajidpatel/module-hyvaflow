@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace SajidPatel\HyvaFlow\Controller\Examples;
+namespace SajidPatel\HyvaFlow\Controller\ExamplesCommands;
 
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
@@ -20,7 +20,7 @@ class Index extends Action
     public function execute(): Page
     {
         $page = $this->pageFactory->create();
-        $page->getConfig()->getTitle()->set(__('Hyvä Flow Examples 2'));
+        $page->getConfig()->getTitle()->set(__('Hyvä Flow Quick Examples'));
 
         return $page;
     }

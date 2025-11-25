@@ -1,0 +1,453 @@
+<?php
+/**
+ * @var \Magento\Framework\View\Element\Template $block
+ */
+?>
+<div class="hyvaflow-loader-demo hyva-prose space-y-8 text-slate-800">
+    <header class="space-y-2">
+        <p class="eyebrow text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+            <a href="https://mageos.test/hyvaflow" class="text-slate-500 hover:text-slate-700 transition-colors">← Back to Hyvä Flow</a>
+        </p>
+        <h1><?= $block->escapeHtml(__('Script Loader + Queue API')) ?></h1>
+        <p><?= $block->escapeHtml(__('Dynamic script loading with dependency resolution and queue management.')) ?></p>
+    </header>
+
+    <section class="space-y-3 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+        <h2 class="text-xl font-semibold"><?= $block->escapeHtml(__('Features')) ?></h2>
+        <ul class="list-disc pl-6 space-y-1 text-base">
+            <li><?= $block->escapeHtml(__('Load external scripts dynamically with Promise-based API')) ?></li>
+            <li><?= $block->escapeHtml(__('Queue management with automatic dependency resolution')) ?></li>
+            <li><?= $block->escapeHtml(__('Prevent duplicate loads with built-in caching')) ?></li>
+            <li><?= $block->escapeHtml(__('Lifecycle events: loader:start, loader:complete, loader:error')) ?></li>
+            <li><?= $block->escapeHtml(__('Support for async/defer attributes and custom script attributes')) ?></li>
+        </ul>
+    </section>
+
+    <section class="space-y-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div>
+            <h2 class="text-xl font-semibold"><?= $block->escapeHtml(__('Basic Loading')) ?></h2>
+            <p><?= $block->escapeHtml(__('Load a single script from a URL.')) ?></p>
+        </div>
+        <div class="flex flex-wrap gap-3">
+            <button type="button" class="action primary" id="load-single-script">
+                <?= $block->escapeHtml(__('Load Single Script')) ?>
+            </button>
+            <button type="button" class="action" id="check-loaded">
+                <?= $block->escapeHtml(__('Check If Loaded')) ?>
+            </button>
+        </div>
+    </section>
+
+    <section class="space-y-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div>
+            <h2 class="text-xl font-semibold"><?= $block->escapeHtml(__('Queue with Dependencies')) ?></h2>
+            <p><?= $block->escapeHtml(__('Load multiple scripts with dependency ordering.')) ?></p>
+        </div>
+        <div class="flex flex-wrap gap-3">
+            <button type="button" class="action primary" id="load-with-deps">
+                <?= $block->escapeHtml(__('Load Queue with Dependencies')) ?>
+            </button>
+            <button type="button" class="action" id="list-loaded">
+                <?= $block->escapeHtml(__('List All Loaded')) ?>
+            </button>
+        </div>
+    </section>
+
+    <section class="space-y-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div>
+            <h2 class="text-xl font-semibold"><?= $block->escapeHtml(__('Event Listeners')) ?></h2>
+            <p><?= $block->escapeHtml(__('Listen to loader lifecycle events.')) ?></p>
+        </div>
+        <div class="flex flex-wrap gap-3">
+            <button type="button" class="action" id="register-listeners">
+                <?= $block->escapeHtml(__('Register Event Listeners')) ?>
+            </button>
+        </div>
+    </section>
+
+    <section class="space-y-3 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div class="flex items-center justify-between">
+            <h2 class="text-xl font-semibold"><?= $block->escapeHtml(__('Event Log')) ?></h2>
+            <button type="button" class="action" id="clear-log">
+                <?= $block->escapeHtml(__('Clear log')) ?>
+            </button>
+        </div>
+        <pre id="loader-demo-log" class="min-h-[200px] rounded-md bg-slate-950 p-4 text-sm font-mono text-emerald-100 overflow-auto"></pre>
+    </section>
+
+    <section class="space-y-3 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+        <h2 class="text-xl font-semibold"><?= $block->escapeHtml(__('Code Examples')) ?></h2>
+        <div class="space-y-4">
+            <div>
+                <h3 class="font-semibold mb-2"><?= $block->escapeHtml(__('Load a single script:')) ?></h3>
+                <pre class="rounded-md bg-slate-900 p-4 text-sm text-slate-100 overflow-x-auto"><code>window.hyvaflow.loader.load('https://cdn.example.com/library.js')
+  .then(() => console.log('Loaded!'))
+  .catch((err) => console.error('Failed:', err));</code></pre>
+            </div>
+            <div>
+                <h3 class="font-semibold mb-2"><?= $block->escapeHtml(__('Load with config:')) ?></h3>
+                <pre class="rounded-md bg-slate-900 p-4 text-sm text-slate-100 overflow-x-auto"><code>window.hyvaflow.loader.load({
+  url: 'https://cdn.example.com/library.js',
+  id: 'my-library',
+  async: true,
+  attributes: { 'data-version': '1.0.0' }
+});</code></pre>
+            </div>
+            <div>
+                <h3 class="font-semibold mb-2"><?= $block->escapeHtml(__('Load queue with dependencies:')) ?></h3>
+                <pre class="rounded-md bg-slate-900 p-4 text-sm text-slate-100 overflow-x-auto"><code>window.hyvaflow.loader.loadQueue([
+  { url: 'https://cdn.example.com/jquery.js', id: 'jquery' },
+  { url: 'https://cdn.example.com/plugin.js', id: 'plugin', deps: ['jquery'] }
+]);</code></pre>
+            </div>
+            <div>
+                <h3 class="font-semibold mb-2"><?= $block->escapeHtml(__('Listen to events:')) ?></h3>
+                <pre class="rounded-md bg-slate-900 p-4 text-sm text-slate-100 overflow-x-auto"><code>window.hyvaflow.on('hyva:flow:loader:start', (e) => {
+  console.log('Loading:', e.detail.url);
+});
+
+window.hyvaflow.on('hyva:flow:loader:complete', (e) => {
+  console.log('Loaded:', e.detail.id);
+});</code></pre>
+            </div>
+        </div>
+    </section>
+
+    <section class="space-y-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"
+             x-data="cartServiceQueue()">
+        <div>
+            <h2 class="text-xl font-semibold"><?= $block->escapeHtml(__('Practical Example: Cart Service Queue (Alpine.js)')) ?></h2>
+            <p><?= $block->escapeHtml(__('Queue product additions using Alpine.js, load the cart service dynamically, then process the queue.')) ?></p>
+        </div>
+        <div class="flex flex-wrap gap-3">
+            <button type="button"
+                    class="action primary"
+                    @click="addToQueue()">
+                <?= $block->escapeHtml(__('Add Product to Queue')) ?>
+            </button>
+            <button type="button"
+                    class="action"
+                    @click="loadAndProcess()"
+                    :disabled="queue.length === 0"
+                    :class="{ 'opacity-50 cursor-not-allowed': queue.length === 0 }">
+                <?= $block->escapeHtml(__('Load Cart Service & Process Queue')) ?>
+            </button>
+            <button type="button"
+                    class="action"
+                    @click="clearQueue()"
+                    :disabled="queue.length === 0"
+                    :class="{ 'opacity-50 cursor-not-allowed': queue.length === 0 }">
+                <?= $block->escapeHtml(__('Clear Queue')) ?>
+            </button>
+        </div>
+        <div class="rounded-lg bg-slate-50 p-4">
+            <h3 class="font-semibold mb-2"><?= $block->escapeHtml(__('Product Queue:')) ?> <span x-text="`(${queue.length} items)`" class="text-sm text-slate-500"></span></h3>
+            <div class="text-sm text-slate-600 min-h-[40px]">
+                <template x-if="queue.length === 0">
+                    <span class="text-slate-500"><?= $block->escapeHtml(__('Queue is empty')) ?></span>
+                </template>
+                <template x-if="queue.length > 0">
+                    <div>
+                        <template x-for="(product, index) in queue" :key="index">
+                            <div class="flex items-center justify-between py-1 border-b border-slate-200 last:border-0">
+                                <span>
+                                    <strong>SKU:</strong> <span x-text="product.sku"></span>
+                                    <strong>Qty:</strong> <span x-text="product.qty"></span>
+                                </span>
+                                <span class="text-xs text-slate-500" x-text="`#${index + 1}`"></span>
+                            </div>
+                        </template>
+                    </div>
+                </template>
+            </div>
+        </div>
+        <div>
+            <h3 class="font-semibold mb-2"><?= $block->escapeHtml(__('How it works:')) ?></h3>
+            <pre class="rounded-md bg-slate-900 p-4 text-sm text-slate-100 overflow-x-auto"><code>// Alpine.js component with reactive queue
+Alpine.data('cartServiceQueue', () => ({
+  queue: [],
+  queueIdCounter: 0,
+
+  addToQueue() {
+    this.queue.push({
+      sku: `DEMO-${++this.queueIdCounter}`,
+      qty: Math.floor(Math.random() * 3) + 1
+    });
+  },
+
+  async loadAndProcess() {
+    await window.hyvaflow.loader.load({
+      url: '/static/.../cart-service.js',
+      id: 'cart-service'
+    });
+
+    this.queue.forEach(product => {
+      window.services.cart.addProduct(product);
+    });
+
+    this.queue = [];
+  }
+}));</code></pre>
+        </div>
+    </section>
+</div>
+
+<?php
+// Get the cart service URL using Magento's view file URL resolver
+$cartServiceUrl = $block->getViewFileUrl('SajidPatel_CatalogUI::js/services/cart-service.js');
+?>
+
+<script>
+// ============================================================================
+// Alpine.js Cart Service Queue Component
+// ============================================================================
+function cartServiceQueue() {
+    return {
+        queue: [],
+        queueIdCounter: 0,
+        CART_SERVICE_URL: "<?= $block->escapeJs($block->escapeHtml($cartServiceUrl)) ?>",
+
+        addToQueue() {
+            this.queueIdCounter++;
+            const product = {
+                sku: `DEMO-${String(this.queueIdCounter).padStart(3, '0')}`,
+                qty: Math.floor(Math.random() * 3) + 1
+            };
+
+            this.queue.push(product);
+            this.log('queue', `Added ${product.sku} (qty: ${product.qty}) to queue. Total: ${this.queue.length}`);
+        },
+
+        async loadAndProcess() {
+            if (this.queue.length === 0) {
+                this.log('queue', 'Queue is empty! Add products first.');
+                return;
+            }
+
+            const flow = window.hyvaflow;
+            if (!flow?.loader) {
+                this.log('error', 'HyvaFlow loader not available');
+                return;
+            }
+
+            try {
+                this.log('cart', `Loading cart service from: ${this.CART_SERVICE_URL}`);
+
+                // Load the cart service
+                await flow.loader.load({
+                    url: this.CART_SERVICE_URL,
+                    id: 'cart-service'
+                });
+
+                this.log('cart', 'Cart service loaded successfully!');
+
+                // Check if cart service is available
+                if (!window.services?.cart) {
+                    this.log('error', 'Cart service loaded but window.services.cart is not available');
+                    this.log('info', 'This is expected in the demo - in production, the cart service would initialize itself');
+
+                    // Simulate processing for demo purposes
+                    this.log('queue', `Processing ${this.queue.length} products from queue...`);
+
+                    for (let i = 0; i < this.queue.length; i++) {
+                        const product = this.queue[i];
+                        setTimeout(() => {
+                            this.log('queue', `[${i + 1}/${this.queue.length}] Processing ${product.sku} (qty: ${product.qty})`);
+                        }, i * 100);
+                    }
+
+                    // Clear queue after "processing"
+                    const count = this.queue.length;
+                    setTimeout(() => {
+                        this.queue = [];
+                        this.log('queue', `Queue processed! Cleared ${count} items.`);
+                    }, this.queue.length * 100 + 200);
+
+                } else {
+                    // Real implementation when cart service is available
+                    this.log('queue', `Processing ${this.queue.length} products from queue...`);
+
+                    const results = await Promise.allSettled(
+                        this.queue.map(product =>
+                            window.services.cart.addProduct(product)
+                        )
+                    );
+
+                    results.forEach((result, index) => {
+                        const product = this.queue[index];
+                        if (result.status === 'fulfilled') {
+                            this.log('cart', `✓ Added ${product.sku} to cart`);
+                        } else {
+                            this.log('error', `✗ Failed to add ${product.sku}: ${result.reason}`);
+                        }
+                    });
+
+                    // Clear queue
+                    const count = this.queue.length;
+                    this.queue = [];
+                    this.log('queue', `Queue cleared! Processed ${count} items.`);
+                }
+
+            } catch (err) {
+                this.log('error', `Failed to load cart service: ${err.message}`);
+            }
+        },
+
+        clearQueue() {
+            const count = this.queue.length;
+            this.queue = [];
+            this.queueIdCounter = 0;
+            this.log('queue', `Cleared ${count} items from queue.`);
+        },
+
+        log(channel, message) {
+            const logEl = document.getElementById('loader-demo-log');
+            if (!logEl) return;
+            const ts = new Date().toLocaleTimeString();
+            logEl.textContent = `[${ts}] [${channel}] ${message}\n` + logEl.textContent;
+        }
+    };
+}
+</script>
+
+<script>
+(() => {
+    const logEl = document.getElementById('loader-demo-log');
+
+    const logLine = (channel, message) => {
+        if (!logEl) return;
+        const ts = new Date().toLocaleTimeString();
+        logEl.textContent = `[${ts}] [${channel}] ${message}\n` + logEl.textContent;
+    };
+
+    const getFlow = () => {
+        const flow = window.hyvaflow;
+        if (!flow) {
+            logLine('error', 'window.hyvaflow is undefined. Ensure hyvaflow-core.js and hyvaflow-loader.js are loaded.');
+            return null;
+        }
+        if (!flow.loader) {
+            logLine('error', 'window.hyvaflow.loader is undefined. Ensure hyvaflow-loader.js is loaded after core.');
+            return null;
+        }
+        return flow;
+    };
+
+    // Demo script URLs (using CDN examples)
+    const DEMO_SCRIPTS = {
+        lodash: 'https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js',
+        moment: 'https://cdn.jsdelivr.net/npm/moment@2.29.4/moment.min.js',
+        axios: 'https://cdn.jsdelivr.net/npm/axios@1.6.0/dist/axios.min.js'
+    };
+
+    // Load single script
+    document.getElementById('load-single-script')?.addEventListener('click', async () => {
+        const flow = getFlow();
+        if (!flow) return;
+
+        try {
+            logLine('loader', `Loading: ${DEMO_SCRIPTS.lodash}`);
+            await flow.loader.load({
+                url: DEMO_SCRIPTS.lodash,
+                id: 'lodash'
+            });
+            logLine('loader', 'Successfully loaded lodash!');
+            if (typeof window._ !== 'undefined') {
+                logLine('loader', `Lodash version: ${window._.VERSION}`);
+            }
+        } catch (err) {
+            logLine('error', `Failed to load: ${err.message}`);
+        }
+    });
+
+    // Check if loaded
+    document.getElementById('check-loaded')?.addEventListener('click', () => {
+        const flow = getFlow();
+        if (!flow) return;
+
+        const isLoaded = flow.loader.isLoaded('lodash');
+        logLine('loader', `Is 'lodash' loaded? ${isLoaded}`);
+
+        if (isLoaded && typeof window._ !== 'undefined') {
+            logLine('loader', `Confirmed: window._ exists (version ${window._.VERSION})`);
+        }
+    });
+
+    // Load with dependencies
+    document.getElementById('load-with-deps')?.addEventListener('click', async () => {
+        const flow = getFlow();
+        if (!flow) return;
+
+        try {
+            logLine('loader', 'Loading queue with dependencies...');
+            await flow.loader.loadQueue([
+                { url: DEMO_SCRIPTS.moment, id: 'moment' },
+                { url: DEMO_SCRIPTS.axios, id: 'axios', deps: ['moment'] }
+            ]);
+            logLine('loader', 'Queue loaded successfully!');
+
+            if (typeof window.moment !== 'undefined') {
+                logLine('loader', `Moment.js version: ${window.moment.version}`);
+            }
+            if (typeof window.axios !== 'undefined') {
+                logLine('loader', `Axios version: ${window.axios.VERSION}`);
+            }
+        } catch (err) {
+            logLine('error', `Queue loading failed: ${err.message}`);
+        }
+    });
+
+    // List all loaded
+    document.getElementById('list-loaded')?.addEventListener('click', () => {
+        const flow = getFlow();
+        if (!flow) return;
+
+        const loaded = flow.loader.getLoaded();
+        if (loaded.length === 0) {
+            logLine('loader', 'No scripts loaded yet.');
+        } else {
+            logLine('loader', `Loaded scripts: ${loaded.join(', ')}`);
+        }
+    });
+
+    // Register event listeners
+    let listenersRegistered = false;
+    document.getElementById('register-listeners')?.addEventListener('click', () => {
+        const flow = getFlow();
+        if (!flow) return;
+
+        if (listenersRegistered) {
+            logLine('event', 'Listeners already registered.');
+            return;
+        }
+
+        flow.on('hyva:flow:loader:start', (e) => {
+            logLine('event', `[loader:start] ${e.detail.id || e.detail.url}`);
+        });
+
+        flow.on('hyva:flow:loader:complete', (e) => {
+            logLine('event', `[loader:complete] ${e.detail.id} loaded successfully`);
+        });
+
+        flow.on('hyva:flow:loader:error', (e) => {
+            logLine('event', `[loader:error] ${e.detail.id} failed: ${e.detail.error?.message}`);
+        });
+
+        listenersRegistered = true;
+        logLine('event', 'Event listeners registered for loader lifecycle events.');
+    });
+
+    // Clear log
+    document.getElementById('clear-log')?.addEventListener('click', () => {
+        if (logEl) {
+            logEl.textContent = '';
+            logLine('system', 'Log cleared.');
+        }
+    });
+
+    // Initial log
+    if (getFlow()) {
+        logLine('system', 'HyvaFlow Loader demo initialized. Click buttons above to test the API.');
+    }
+})();
+</script>

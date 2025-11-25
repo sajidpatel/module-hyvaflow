@@ -18,6 +18,11 @@
                     <comment>Toggle the optional Hyvä Flow DOM helper (hyvaflow-dom.js). Disable if you load a custom build or only need the core event bus.</comment>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
+                <field id="load_loader" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Load Loader Bundle</label>
+                    <comment>Toggle the optional Hyvä Flow Loader bundle (hyvaflow-loader.js). Disable if you load a custom build or only need the core event bus.</comment>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
             </group>
         </section>
     </system>

@@ -19,6 +19,11 @@
                 name="sajidpatel.hyvaflow.dom.helper"
                 template="SajidPatel_HyvaFlow::head/dom-helper-script.phtml"
                 ifconfig="hyvaflow/general/load_dom_helper"/>
+            <!-- Optional Loader plugin for dynamic script loading with queue management -->
+            <block class="Magento\Framework\View\Element\Template"
+                name="sajidpatel.hyvaflow.loader"
+                template="SajidPatel_HyvaFlow::head/loader-script.phtml"
+                ifconfig="hyvaflow/general/load_loader"/>
         </referenceBlock>
     </body>
 </page>

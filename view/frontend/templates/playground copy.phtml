@@ -1,0 +1,280 @@
+<div
+    x-data="hyvaFlowPlayground()"
+    x-init="init()"
+    class="space-y-10 p-8 hyva-prose"
+>
+
+    <!-- HEADER -->
+    <header>
+        <h1 class="text-2xl font-bold mb-1">Hyvä Flow + Alpine.js Playground</h1>
+        <p class="text-slate-600">
+            A lightweight sandbox to experiment with Hyvä Flow event bus, DOM utilities, Alpine actions, and custom bridging.
+        </p>
+    </header>
+
+    <!-- SNIPPET VIEWER -->
+    <section class="rounded-xl bg-slate-900 text-slate-100 p-4 text-sm overflow-x-auto">
+        <pre><code x-text="snippet"></code></pre>
+    </section>
+
+    <!-- EVENT BUS -->
+    <section class="rounded-xl border p-6 space-y-4 bg-white shadow-sm">
+        <h2 class="text-xl font-semibold">Event Bus</h2>
+
+        <div class="flex gap-3 flex-wrap">
+            <button class="action" @click="registerListeners()">Register Listeners</button>
+            <button class="action" @click="triggerDemo()">Trigger Demo Event</button>
+            <button class="action" @click="emitReady()">Emit alpine:init</button>
+            <button class="action" @click="emitRefresh()">Emit DOM Refresh</button>
+        </div>
+    </section>
+
+    <!-- DOM SELECT -->
+    <section class="rounded-xl border p-6 space-y-4 bg-white shadow-sm">
+        <h2 class="text-xl font-semibold">DOM Selection</h2>
+
+        <div class="grid grid-cols-3 gap-3">
+            <div
+                class="p-4 rounded-lg border hover:bg-slate-50 cursor-pointer transition"
+                data-demo-card="1"
+                @click="toggleCard($event)"
+            >Card 1</div>
+
+            <div
+                class="p-4 rounded-lg border hover:bg-slate-50 cursor-pointer transition"
+                data-demo-card="2"
+                @click="toggleCard($event)"
+            >Card 2</div>
+
+            <div
+                class="p-4 rounded-lg border hover:bg-slate-50 cursor-pointer transition"
+                data-demo-card="3"
+                @click="toggleCard($event)"
+            >Card 3</div>
+        </div>
+
+        <div class="flex gap-3">
+            <button class="action" @click="selectAll()">Select All</button>
+            <button class="action" @click="listSelected()">List Selected</button>
+        </div>
+
+        <p class="text-slate-600" x-text="domMessage"></p>
+    </section>
+
+    <!-- BRIDGE DEMO -->
+    <section class="rounded-xl border p-6 space-y-4 bg-white shadow-sm">
+        <h2 class="text-xl font-semibold">Bridge Demo</h2>
+
+        <div class="flex gap-3">
+            <button class="action" @click="simulateHtmx()">Simulate htmx:afterSwap</button>
+            <button class="action" @click="enableAlpineBridge()">Enable Alpine Bridge</button>
+            <button class="action" @click="triggerAlpine()">Trigger Alpine-bound Event</button>
+        </div>
+    </section>
+
+    <!-- DOM LAB -->
+    <section class="rounded-xl border p-6 space-y-4 bg-white shadow-sm">
+        <h2 class="text-xl font-semibold">DOM Listener Lab</h2>
+
+        <div class="flex gap-3">
+            <button class="action" @click="wireDom()">Wire addDomListener()</button>
+            <button class="action" @click="addDomNode()">Add Node</button>
+        </div>
+
+        <div class="flex gap-2 flex-wrap" data-lab-area>
+            <button class="action secondary p-2 border rounded lab-node" data-node="static-1">Static 1</button>
+            <button class="action secondary p-2 border rounded lab-node" data-node="static-2">Static 2</button>
+        </div>
+    </section>
+
+    <!-- LOG -->
+    <section>
+        <h2 class="text-xl font-semibold mb-2">Log</h2>
+        <button class="action" @click="log=''">Clear</button>
+
+        <pre class="bg-slate-950 text-emerald-200 p-4 rounded h-48 overflow-auto mt-2" x-text="log"></pre>
+    </section>
+
+</div>
+
+<script>
+document.addEventListener('alpine:init', () => {
+
+    Alpine.data('hyvaFlowPlayground', () => ({
+        snippet: '// Snippet output will appear here',
+        log: '',
+        domMessage: '',
+        domCount: 2,
+        alpineBridge: false,
+
+        init() {
+            this.logMsg('Playground ready');
+        },
+
+        logMsg(msg) {
+            const ts = new Date().toLocaleTimeString();
+            this.log = `[${ts}] ${msg}\n` + this.log;
+        },
+
+        flow() {
+            const f = window.hyvaflow;
+            if (!f) this.logMsg('❌ window.hyvaflow missing');
+            return f;
+        },
+
+        highlight(node) {
+            node.classList.add('ring-2','ring-emerald-400');
+            setTimeout(()=> node.classList.remove('ring-2','ring-emerald-400'), 600);
+        },
+
+        /* EVENT BUS */
+        registerListeners() {
+            const f = this.flow();
+            if (!f) return;
+
+            f.on('hyva:flow:ready', () => this.logMsg('hyva:flow:ready'));
+            f.on('hyva:flow:demo',   (e) => this.logMsg('hyva:flow:demo => ' + JSON.stringify(e.detail)));
+
+            this.snippet =
+`hyvaflow.on('hyva:flow:ready', handler);
+hyvaflow.on('hyva:flow:demo', handler);
+// Register listeners`;
+
+            this.logMsg('Listeners registered');
+        },
+
+        triggerDemo() {
+            const f = this.flow();
+            if (!f) return;
+            f.trigger('hyva:flow:demo', {source:'playground', at:Date.now()});
+
+            this.snippet =
+`hyvaflow.trigger('hyva:flow:demo', {source:'playground'});
+// Trigger custom Hyvä Flow event`;
+
+            this.logMsg('Triggered demo event');
+        },
+
+        emitReady() {
+            document.dispatchEvent(new CustomEvent('alpine:init'));
+            this.snippet = `document.dispatchEvent(new CustomEvent('alpine:init'));`;
+        },
+
+        emitRefresh() {
+            this.flow()?.trigger('hyva:flow:dom:refresh');
+            this.snippet = `hyvaflow.trigger('hyva:flow:dom:refresh');`;
+        },
+
+        /* DOM SELECT */
+        toggleCard(e) {
+            const card = e.target.closest('[data-demo-card]');
+            const f = this.flow();
+            if (!f) return;
+
+            card.classList.toggle('is-selected');
+            this.highlight(card);
+
+            this.snippet =
+`const [card] = hyvaflow.select('[data-demo-card="${card.dataset.demoCard}"]');
+card.classList.toggle('is-selected');`;
+
+            this.logMsg(`Card ${card.dataset.demoCard} toggled`);
+        },
+
+        selectAll() {
+            const f = this.flow();
+            if (!f) return;
+
+            const cards = f.select('[data-demo-card]');
+            cards.forEach(c => this.highlight(c));
+
+            this.snippet = `hyvaflow.select('[data-demo-card]');`;
+
+            this.domMessage = `${cards.length} cards selected`;
+        },
+
+        listSelected() {
+            const f = this.flow();
+            if (!f) return;
+
+            const selected = f.select('[data-demo-card].is-selected').toArray();
+            this.domMessage = 'Selected: ' + selected.map(c => c.dataset.demoCard).join(', ');
+
+            this.snippet = `hyvaflow.select('[data-demo-card].is-selected').toArray();`;
+        },
+
+        /* BRIDGE */
+        simulateHtmx() {
+            document.dispatchEvent(new CustomEvent('htmx:afterSwap'));
+            this.snippet = `document.dispatchEvent(new CustomEvent('htmx:afterSwap'));`;
+            this.logMsg('Simulated htmx:afterSwap');
+        },
+
+        enableAlpineBridge() {
+            if (this.alpineBridge) return;
+            this.alpineBridge = true;
+
+            const store = this;
+
+            window.Alpine = {
+                ...window.Alpine,
+                dispatch(event, detail) {
+                    store.logMsg(`Alpine.dispatch -> ${event}`);
+                }
+            };
+
+            this.snippet =
+`window.Alpine.dispatch = (event, detail) => console.log(event, detail);
+// Enable Alpine bridge`;
+
+            this.logMsg('Alpine bridge enabled');
+        },
+
+        triggerAlpine() {
+            const f = this.flow();
+            if (!f) return;
+
+            f.trigger('hyva:flow:alpine-demo', {msg:'hello'});
+            this.snippet = `hyvaflow.trigger('hyva:flow:alpine-demo', {msg:'hello'});`;
+        },
+
+        /* DOM LAB */
+        wireDom() {
+            const f = this.flow();
+            if (!f) return;
+
+            f.addDomListener('click', '.lab-node', (e) => {
+                const target = e.target.closest('.lab-node');
+                this.highlight(target);
+                this.logMsg('lab-node clicked: ' + target.dataset.node);
+            });
+
+            this.snippet =
+`hyvaflow.addDomListener('click', '.lab-node', handler);
+// Delegated DOM listener`;
+
+            this.logMsg('DOM listener wired');
+        },
+
+        addDomNode() {
+            const area = document.querySelector('[data-lab-area]');
+            this.domCount += 1;
+
+            const btn = document.createElement('button');
+            btn.className = "action secondary p-2 border rounded lab-node";
+            btn.dataset.node = `dynamic-${this.domCount}`;
+            btn.textContent = `Dynamic ${this.domCount}`;
+
+            area.appendChild(btn);
+
+            this.snippet =
+`const el = document.createElement('button');
+el.classList.add('lab-node');
+area.appendChild(el);
+// Adding dynamic node`;
+
+            this.logMsg('Added dynamic lab node');
+        }
+    }));
+});
+</script>

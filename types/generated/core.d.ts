@@ -1,4 +1,4 @@
-import type { HyvaFlowCustomEventDetail, HyvaFlowEventDetailMap, HyvaFlowLifecycleConfig, HyvaFlowEventName, HyvaFlowConfigureOptions, HyvaFlowRuntimeConfig, HyvaFlowServiceLoader } from './types';
+import type { HyvaFlowCustomEventDetail, HyvaFlowEventDetailMap, HyvaFlowLifecycleConfig, HyvaFlowEventName, HyvaFlowConfigureOptions, HyvaFlowRuntimeConfig } from './types';
 export type HyvaFlowPluginContext = {
     core: HyvaFlowCore;
     window: Window;
@@ -32,7 +32,6 @@ export interface HyvaFlowCore {
     plugins: HyvaFlowPluginRegistry;
     lifecycle(config?: Partial<HyvaFlowLifecycleConfig>): HyvaFlowLifecycleConfig;
     configure(options?: HyvaFlowConfigureOptions): HyvaFlowRuntimeConfig;
-    serviceLoader: HyvaFlowServiceLoader;
 }
 export declare function createHyvaFlowCore(): HyvaFlowCore;
 export declare function bootHyvaFlowCore(): void;

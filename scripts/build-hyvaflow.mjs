@@ -31,6 +31,18 @@ const buildTargets = [
     minify: true,
     sourcemap: false,
   },
+  {
+    entry: resolve(moduleRoot, 'view/frontend/web/src/loader-entry.ts'),
+    outfile: resolve(distDir, 'hyvaflow-loader.js'),
+    minify: false,
+    sourcemap: true,
+  },
+  {
+    entry: resolve(moduleRoot, 'view/frontend/web/src/loader-entry.ts'),
+    outfile: resolve(distDir, 'hyvaflow-loader.min.js'),
+    minify: true,
+    sourcemap: false,
+  },
 ];
 
 const baseConfig = {

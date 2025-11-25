@@ -1,0 +1,792 @@
+<?php
+/** @var \Magento\Framework\View\Element\Template $block */
+?>
+<div
+    x-data="hyvaFlowPlayground()"
+    x-init="init()"
+    class="hyvaflow-playground hyva-prose space-y-10 p-8 text-slate-800"
+>
+    <!-- HEADER -->
+    <header class="space-y-2">
+        <p class="eyebrow text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+            <a href="https://mageos.test/hyvaflow" class="text-slate-500 hover:text-slate-700 transition-colors">← Back to Hyvä Flow</a>
+        </p>
+        <p class="eyebrow text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+            Hyvä Flow
+        </p>
+        <h1 class="text-2xl font-bold">
+            <?= $block->escapeHtml(__('Hyvä Flow + Alpine.js Playground')) ?>
+        </h1>
+        <p class="text-slate-600">
+            <?= $block->escapeHtml(__('Experiment with Hyvä Flow event bus, triggers, DOM selection, HTMX bridge, and DOM listeners — all wired through Alpine.js.')) ?>
+        </p>
+    </header>
+
+    <!-- GLOBAL SNIPPET VIEWER -->
+    <section class="rounded-2xl bg-slate-900 text-slate-100 p-4 text-sm overflow-x-auto shadow">
+        <div class="flex items-center justify-between mb-2">
+            <h2 class="text-sm font-semibold tracking-wide uppercase text-slate-300">
+                <?= $block->escapeHtml(__('Current Snippet')) ?>
+            </h2>
+            <button
+                type="button"
+                class="action text-xs"
+                @click="snippet = '// Snippet output will appear here';"
+            >
+                <?= $block->escapeHtml(__('Reset snippet')) ?>
+            </button>
+        </div>
+        <pre class="whitespace-pre-wrap"><code x-text="snippet"></code></pre>
+    </section>
+
+    <!-- EVENT BUS + INSPECTOR -->
+    <section class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm space-y-4">
+        <div class="flex items-center justify-between gap-4">
+            <div>
+                <h2 class="text-xl font-semibold"><?= $block->escapeHtml(__('Event Bus & Inspector')) ?></h2>
+                <p class="text-sm text-slate-600">
+                    <?= $block->escapeHtml(__('Register listeners on the Hyvä Flow event bus and inspect the last event + payload.')) ?>
+                </p>
+            </div>
+            <span class="inline-flex items-center rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700 border border-emerald-100">
+                <span
+                    class="w-2 h-2 rounded-full mr-2"
+                    :class="eventBus.listenersRegistered ? 'bg-emerald-500' : 'bg-slate-400'"
+                ></span>
+                <span x-text="eventBus.listenersRegistered ? 'Listeners active' : 'Listeners idle'"></span>
+            </span>
+        </div>
+
+        <div class="flex flex-wrap gap-3">
+            <button type="button" class="action primary" @click="registerListeners()">
+                <?= $block->escapeHtml(__('Register listeners')) ?>
+            </button>
+            <button type="button" class="action" @click="triggerDemoFromEventBus()">
+                <?= $block->escapeHtml(__('Trigger hyva:flow:demo')) ?>
+            </button>
+            <button type="button" class="action" @click="emitReady()">
+                <?= $block->escapeHtml(__('Emit alpine:init')) ?>
+            </button>
+            <button type="button" class="action" @click="emitRefresh()">
+                <?= $block->escapeHtml(__('Emit hyva:flow:dom:refresh')) ?>
+            </button>
+        </div>
+
+        <!-- EventBus inspector -->
+        <div class="mt-4 rounded-xl bg-slate-50 border border-slate-200 p-4 text-sm space-y-2">
+            <div class="flex justify-between flex-wrap gap-2">
+                <p>
+                    <span class="font-semibold"><?= $block->escapeHtml(__('Last event:')) ?></span>
+                    <span class="ml-1" x-text="eventBus.lastEvent || '—'"></span>
+                </p>
+                <p>
+                    <span class="font-semibold"><?= $block->escapeHtml(__('Source:')) ?></span>
+                    <span class="ml-1" x-text="eventBus.lastDetail?.source || '—'"></span>
+                </p>
+            </div>
+            <div>
+                <p class="font-semibold mb-1"><?= $block->escapeHtml(__('Detail payload')) ?></p>
+                <pre class="bg-white rounded border border-slate-200 p-2 text-xs overflow-x-auto"><code x-text="eventBus.lastDetail ? JSON.stringify(eventBus.lastDetail, null, 2) : '// no payload yet'"></code></pre>
+            </div>
+        </div>
+    </section>
+
+    <!-- TRIGGER INSPECTOR -->
+    <section class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm space-y-4">
+        <div>
+            <h2 class="text-xl font-semibold"><?= $block->escapeHtml(__('Trigger Inspector')) ?></h2>
+            <p class="text-sm text-slate-600">
+                <?= $block->escapeHtml(__('Fire arbitrary Hyvä Flow events with a custom payload and inspect what was last triggered.')) ?>
+            </p>
+        </div>
+
+        <div class="grid gap-4 md:grid-cols-2">
+            <div class="space-y-3">
+                <div>
+                    <label class="block text-sm font-medium mb-1">
+                        <?= $block->escapeHtml(__('Event name')) ?>
+                    </label>
+                    <input
+                        type="text"
+                        class="w-full rounded border border-slate-300 px-3 py-2 text-sm"
+                        x-model="triggerEventName"
+                    />
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">
+                        <?= $block->escapeHtml(__('Detail (JSON or text)')) ?>
+                    </label>
+                    <textarea
+                        rows="4"
+                        class="w-full rounded border border-slate-300 px-3 py-2 text-sm font-mono"
+                        x-model="triggerDetailSource"
+                    ></textarea>
+                </div>
+                <button type="button" class="action mt-1" @click="runTriggerInspector()">
+                    <?= $block->escapeHtml(__('Trigger via hyvaflow.trigger')) ?>
+                </button>
+            </div>
+
+            <div class="rounded-xl bg-slate-50 border border-slate-200 p-4 text-sm space-y-2">
+                <p>
+                    <span class="font-semibold"><?= $block->escapeHtml(__('Last triggered:')) ?></span>
+                    <span class="ml-1" x-text="triggerLast?.name || '—'"></span>
+                </p>
+                <p class="font-semibold mb-1"><?= $block->escapeHtml(__('Last detail')) ?></p>
+                <pre class="bg-white rounded border border-slate-200 p-2 text-xs overflow-x-auto">
+<code x-text="triggerLast?.detail ? JSON.stringify(triggerLast.detail, null, 2) : '// no trigger yet'"></code>
+                </pre>
+                <template x-if="triggerLast && triggerLast.error">
+                    <p class="text-xs text-red-600 mt-1" x-text="triggerLast.error"></p>
+                </template>
+            </div>
+        </div>
+    </section>
+
+    <!-- SELECT() INSPECTOR -->
+    <section class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm space-y-4">
+        <div>
+            <h2 class="text-xl font-semibold"><?= $block->escapeHtml(__('select() Inspector')) ?></h2>
+            <p class="text-sm text-slate-600">
+                <?= $block->escapeHtml(__('Experiment with hyvaflow.select() using a live selector input and visual targets.')) ?>
+            </p>
+        </div>
+
+        <div class="flex flex-wrap items-end gap-3">
+            <div class="flex-1 min-w-[200px]">
+                <label class="block text-sm font-medium mb-1">
+                    <?= $block->escapeHtml(__('CSS selector')) ?>
+                </label>
+                <input
+                    type="text"
+                    class="w-full rounded border border-slate-300 px-3 py-2 text-sm font-mono"
+                    x-model="selectSelector"
+                />
+            </div>
+            <div class="flex flex-wrap gap-2">
+                <button type="button" class="action secondary" @click="runSelect()">
+                    <?= $block->escapeHtml(__('select()')) ?>
+                </button>
+                <button type="button" class="action secondary" @click="runFirst()">
+                    <?= $block->escapeHtml(__('first()')) ?>
+                </button>
+                <button type="button" class="action secondary" @click="runToArray()">
+                    <?= $block->escapeHtml(__('toArray()')) ?>
+                </button>
+            </div>
+        </div>
+
+        <!-- Demo targets -->
+        <div class="grid gap-3 md:grid-cols-3 mt-4">
+            <?php foreach (['alpha', 'beta', 'gamma'] as $id): ?>
+                <div
+                    class="p-4 rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100 cursor-pointer transition select-target"
+                    data-select-target="1"
+                    data-select-id="<?= $block->escapeHtmlAttr($id) ?>"
+                    @click="highlight($el)"
+                >
+                    <p class="font-semibold mb-1"><?= $block->escapeHtml(ucfirst($id)) ?></p>
+                    <p class="text-xs text-slate-600">
+                        <?= $block->escapeHtml(__('data-select-id="%1"', $id)) ?>
+                    </p>
+                </div>
+            <?php endforeach; ?>
+        </div>
+
+        <!-- Inspector -->
+        <div class="mt-4 rounded-xl bg-slate-50 border border-slate-200 p-4 text-sm space-y-2">
+            <p>
+                <span class="font-semibold"><?= $block->escapeHtml(__('Matches:')) ?></span>
+                <span class="ml-1" x-text="selectLastCount"></span>
+            </p>
+            <ul class="space-y-1 text-xs">
+                <template x-for="(node, i) in selectLastNodes" :key="i">
+                    <li class="bg-white border border-slate-200 rounded px-2 py-1">
+                        <span class="font-semibold" x-text="node.id"></span>
+                        <span class="text-slate-500">(<span x-text="node.tag"></span>)</span>
+                    </li>
+                </template>
+                <template x-if="selectLastNodes.length === 0">
+                    <li class="text-slate-500"><?= $block->escapeHtml(__('No nodes recorded yet.')) ?></li>
+                </template>
+            </ul>
+        </div>
+    </section>
+
+    <!-- HTMX BRIDGE INSPECTOR -->
+    <section class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm space-y-4">
+        <div>
+            <h2 class="text-xl font-semibold"><?= $block->escapeHtml(__('HTMX Bridge Inspector')) ?></h2>
+            <p class="text-sm text-slate-600">
+                <?= $block->escapeHtml(__('Simulate HTMX lifecycle events and inspect what was last fired. Hyvä Flow\'s bridge can respond to these.')) ?>
+            </p>
+        </div>
+
+        <div class="flex flex-wrap gap-3">
+            <button type="button" class="action" @click="simulateHtmx('htmx:afterSwap')">
+                <?= $block->escapeHtml(__('Simulate htmx:afterSwap')) ?>
+            </button>
+            <button type="button" class="action" @click="simulateHtmx('htmx:beforeSwap')">
+                <?= $block->escapeHtml(__('Simulate htmx:beforeSwap')) ?>
+            </button>
+        </div>
+
+        <div class="mt-4 rounded-xl bg-slate-50 border border-slate-200 p-4 text-sm space-y-2">
+            <p>
+                <span class="font-semibold"><?= $block->escapeHtml(__('Last HTMX event:')) ?></span>
+                <span class="ml-1" x-text="htmxLastEvent || '—'"></span>
+            </p>
+            <p>
+                <span class="font-semibold"><?= $block->escapeHtml(__('Total simulated:')) ?></span>
+                <span class="ml-1" x-text="htmxCount"></span>
+            </p>
+        </div>
+    </section>
+
+    <!-- DOM LISTENER LAB + UI + TIMELINE -->
+    <section class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm space-y-4">
+        <div class="flex items-center justify-between gap-4">
+            <div>
+                <h2 class="text-xl font-semibold"><?= $block->escapeHtml(__('DOM Listener Lab')) ?></h2>
+                <p class="text-sm text-slate-600">
+                    <?= $block->escapeHtml(__('Queue DOM events (click, dblclick, input, change) on .lab-node elements before listeners exist, then replay them once addDomListener() is wired.')) ?>
+                </p>
+            </div>
+            <span class="inline-flex items-center rounded-full bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-700 border border-slate-200">
+                <span
+                    class="w-2 h-2 rounded-full mr-2"
+                    :class="domListenerBound ? 'bg-emerald-500' : 'bg-amber-400'"
+                ></span>
+                <span x-text="domListenerBound ? 'Listeners bound' : 'Queueing only'"></span>
+            </span>
+        </div>
+
+        <div class="flex flex-wrap gap-3">
+            <button type="button" class="action secondary" @click="wireDomListeners()">
+                <?= $block->escapeHtml(__('Wire addDomListener()')) ?>
+            </button>
+            <button type="button" class="action secondary" @click="replayQueuedEvents()">
+                <?= $block->escapeHtml(__('Replay queued now')) ?>
+            </button>
+            <button type="button" class="action secondary" @click="addDomNode()">
+                <?= $block->escapeHtml(__('Add dynamic node')) ?>
+            </button>
+        </div>
+
+        <div class="grid gap-4 md:grid-cols-2">
+            <!-- Queue Panel -->
+            <div class="bg-slate-50 border border-slate-200 rounded-lg p-4 space-y-2">
+                <div class="flex items-center justify-between gap-2">
+                    <h3 class="text-sm font-semibold"><?= $block->escapeHtml(__('Queued Events')) ?></h3>
+                    <span class="text-xs text-slate-500" x-text="eventQueue.length + ' total'"></span>
+                </div>
+
+                <template x-if="eventQueue.length === 0">
+                    <p class="text-slate-500 text-xs"><?= $block->escapeHtml(__('No events queued yet. Click a lab node before wiring listeners.')) ?></p>
+                </template>
+
+                <ul class="space-y-1 text-xs max-h-40 overflow-auto">
+                    <template x-for="(ev, i) in eventQueue" :key="i">
+                        <li class="p-2 rounded bg-white border border-slate-200 flex justify-between gap-3">
+                            <span>
+                                <strong x-text="ev.type"></strong>
+                                <span> <?= $block->escapeHtml(__('on')) ?> </span>
+                                <span x-text="ev.node"></span>
+                            </span>
+                            <span class="text-slate-400" x-text="new Date(ev.timestamp).toLocaleTimeString()"></span>
+                        </li>
+                    </template>
+                </ul>
+            </div>
+
+            <!-- Timeline -->
+            <div class="bg-slate-100 border border-slate-200 rounded-lg p-4 space-y-2">
+                <div class="flex items-center justify-between gap-2">
+                    <h3 class="text-sm font-semibold"><?= $block->escapeHtml(__('Timeline')) ?></h3>
+                    <span class="text-xs text-slate-500" x-text="processing ? 'Replaying…' : 'Idle'"></span>
+                </div>
+
+                <template x-if="timeline.length === 0">
+                    <p class="text-slate-500 text-xs"><?= $block->escapeHtml(__('No timeline entries yet.')) ?></p>
+                </template>
+
+                <div class="space-y-2 max-h-40 overflow-auto text-xs">
+                    <template x-for="(t, i) in timeline" :key="i">
+                        <div class="flex items-center gap-2">
+                            <div
+                                class="w-3 h-3 rounded-full"
+                                :class="{
+                                    'bg-orange-400': t.step === 'queued',
+                                    'bg-blue-500 animate-pulse': t.step === 'replaying',
+                                    'bg-emerald-500': t.step === 'handled' || t.step === 'done'
+                                }"
+                            ></div>
+                            <div>
+                                <span class="font-semibold capitalize" x-text="t.step"></span>
+                                <template x-if="t.node">
+                                    <span> → <strong x-text="t.event"></strong> <?= $block->escapeHtml(__('on')) ?> <span x-text="t.node"></span></span>
+                                </template>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </div>
+        </div>
+
+        <!-- DOM Area -->
+        <div class="space-y-2">
+            <h3 class="text-sm font-semibold"><?= $block->escapeHtml(__('Lab Nodes')) ?></h3>
+            <div class="flex flex-wrap gap-2" data-lab-area>
+                <?php for ($i = 1; $i <= 2; $i++): ?>
+                    <button
+                        type="button"
+                        class="action secondary lab-node rounded-full border border-slate-300 px-3 py-1 text-sm shadow-sm transition duration-200"
+                        data-node="<?= $block->escapeHtmlAttr('static-' . $i) ?>"
+                    >
+                        <?= $block->escapeHtml(__('Static %1', $i)) ?>
+                    </button>
+                <?php endfor; ?>
+            </div>
+            <p class="text-xs text-slate-500 mb-0">
+                <?= $block->escapeHtml(__('Click nodes before wiring addDomListener() to see them queued, then wire and replay.')) ?>
+            </p>
+        </div>
+    </section>
+
+    <!-- LOG PANEL -->
+    <section class="space-y-2">
+        <div class="flex items-center justify-between gap-2">
+            <h2 class="text-xl font-semibold"><?= $block->escapeHtml(__('Event Log')) ?></h2>
+            <button type="button" class="action text-xs" @click="log = ''">
+                <?= $block->escapeHtml(__('Clear log')) ?>
+            </button>
+        </div>
+        <pre class="bg-slate-950 text-emerald-100 p-4 rounded-lg text-xs font-mono h-56 overflow-auto" x-text="log"></pre>
+    </section>
+</div>
+
+<script>
+document.addEventListener('alpine:init', () => {
+    Alpine.data('hyvaFlowPlayground', () => ({
+        // Global
+        snippet: '// Snippet output will appear here',
+        log: '',
+
+        // EventBus inspector
+        eventBus: {
+            listenersRegistered: false,
+            lastEvent: null,
+            lastDetail: null
+        },
+
+        // Trigger inspector
+        triggerEventName: 'hyva:flow:demo',
+        triggerDetailSource: '{ "from": "playground" }',
+        triggerLast: null,
+
+        // select() inspector
+        selectSelector: '[data-select-target]',
+        selectLastCount: 0,
+        selectLastNodes: [],
+
+        // HTMX inspector
+        htmxLastEvent: null,
+        htmxCount: 0,
+
+        // DOM Lab
+        domNodeCount: 2,
+        domListenerBound: false,
+        eventQueue: [],
+        timeline: [],
+        processing: false,
+        supportedEvents: ['click', 'dblclick', 'input', 'change'],
+
+        init() {
+            this.logMsg('Hyvä Flow Playground ready.');
+
+            const area = document.querySelector('[data-lab-area]');
+            if (area) {
+                this.domNodeCount = area.querySelectorAll('.lab-node').length;
+            }
+
+            // Multi-event queue: capture before listeners exist
+            this.supportedEvents.forEach((ev) => {
+                document.addEventListener(ev, (e) => {
+
+                    // Only queue EVENTS FROM PRIMARY BUTTON
+                    if (ev === 'click' && e.button !== 0) return;
+
+                    const node = e.target.closest('.lab-node, .hyvaflow-dom-node');
+                    if (!node) return;
+
+                    // Prevent double-queue when bubbling or synthetic re-dispatch
+                    if (e.__queued) return;
+                    e.__queued = true;
+
+                    // Prevent child node clicks being counted twice
+                    if (e.target !== node && ev === 'click') return;
+
+                    const nodeName = node.dataset.node || (node.textContent || '').trim() || 'node';
+
+                    this.eventQueue.push({
+                        type: ev,
+                        node: nodeName,
+                        timestamp: Date.now()
+                    });
+
+                    this.timeline.push({ step: 'queued', event: ev, node: nodeName });
+                    this.logMsg(`Queued ${ev} on ${nodeName}`);
+
+                }, true);
+            });
+
+        },
+
+        /* Helpers */
+        logMsg(msg) {
+            const ts = new Date().toLocaleTimeString();
+            this.log = `[${ts}] ${msg}\n` + this.log;
+        },
+
+        flow() {
+            const f = window.hyvaflow;
+            if (!f) {
+                this.logMsg('❌ window.hyvaflow is undefined. Ensure hyvaflow-core.js is loaded.');
+            }
+            return f;
+        },
+
+        highlight(node) {
+            if (!node || !node.classList) return;
+            node.classList.add('ring-2', 'ring-emerald-400', 'shadow-md');
+            setTimeout(() => {
+                node.classList.remove('ring-2', 'ring-emerald-400', 'shadow-md');
+            }, 500);
+        },
+
+        /* EVENT BUS */
+        registerListeners() {
+            const f = this.flow();
+            if (!f) return;
+
+            if (this.eventBus.listenersRegistered) {
+                this.logMsg('EventBus listeners already registered.');
+                this.snippet =
+`hyvaflow.on('hyva:flow:ready', handler);
+hyvaflow.on('hyva:flow:dom:refresh', handler);
+hyvaflow.on('hyva:flow:demo', handler);
+// EventBus listeners already active; no-op on repeat call`;
+                return;
+            }
+
+            this.eventBus.listenersRegistered = true;
+
+            f.on('hyva:flow:ready', (event) => {
+                this.eventBus.lastEvent = 'hyva:flow:ready';
+                this.eventBus.lastDetail = event?.detail || {};
+                this.logMsg('hyva:flow:ready received.');
+            });
+
+            f.on('hyva:flow:dom:refresh', (event) => {
+                this.eventBus.lastEvent = 'hyva:flow:dom:refresh';
+                this.eventBus.lastDetail = event?.detail || {};
+                this.logMsg('hyva:flow:dom:refresh received.');
+            });
+
+            f.on('hyva:flow:demo', (event) => {
+                this.eventBus.lastEvent = 'hyva:flow:demo';
+                this.eventBus.lastDetail = event?.detail || {};
+                this.logMsg('hyva:flow:demo => ' + JSON.stringify(event?.detail || {}));
+            });
+
+            this.snippet =
+`hyvaflow.on('hyva:flow:ready', (event) => {
+  console.log('ready', event.detail);
+});
+hyvaflow.on('hyva:flow:dom:refresh', () => {
+  console.log('dom:refresh');
+});
+hyvaflow.on('hyva:flow:demo', (event) => {
+  console.log('demo', event.detail);
+});
+// Register Hyvä Flow event bus listeners`;
+            this.logMsg('EventBus listeners registered.');
+        },
+
+        triggerDemoFromEventBus() {
+            const f = this.flow();
+            if (!f) return;
+
+            const detail = {
+                source: 'event-bus-section',
+                at: Date.now(),
+                note: 'Triggered from EventBus section'
+            };
+
+            f.trigger('hyva:flow:demo', detail);
+
+            this.snippet =
+`hyvaflow.trigger('hyva:flow:demo', {
+  source: 'event-bus-section',
+  at: Date.now(),
+  note: 'Triggered from EventBus section',
+});
+// Trigger Hyvä Flow demo event`;
+
+            this.logMsg('Triggered hyva:flow:demo from EventBus section.');
+        },
+
+        emitReady() {
+            document.dispatchEvent(new CustomEvent('alpine:init'));
+            this.snippet =
+`document.dispatchEvent(new CustomEvent('alpine:init'));
+// Stimulate Alpine init; Hyvä Flow can derive hyva:flow:ready from this`;
+            this.logMsg('alpine:init dispatched.');
+        },
+
+        emitRefresh() {
+            const f = this.flow();
+            if (!f) return;
+            f.trigger('hyva:flow:dom:refresh');
+
+            this.snippet =
+`hyvaflow.trigger('hyva:flow:dom:refresh');
+// Manually trigger DOM refresh lifecycle event`;
+            this.logMsg('hyva:flow:dom:refresh triggered.');
+        },
+
+        /* TRIGGER INSPECTOR */
+        runTriggerInspector() {
+            const f = this.flow();
+            if (!f) return;
+
+            const name = (this.triggerEventName || '').trim() || 'hyva:flow:demo';
+            let detail;
+            let error = null;
+
+            const raw = this.triggerDetailSource || '';
+
+            if (!raw.trim()) {
+                detail = {};
+            } else {
+                try {
+                    detail = JSON.parse(raw);
+                } catch (e) {
+                    detail = raw;
+                    error = 'Detail is not valid JSON; sent as string.';
+                }
+            }
+
+            f.trigger(name, detail);
+            this.triggerLast = { name, detail, error };
+
+            this.snippet =
+`let detail;
+try {
+  detail = JSON.parse('<?= addslashes('{ "from": "playground" }') ?>');
+} catch {
+  detail = '<?= addslashes('{ "from": "playground" }') ?>';
+}
+hyvaflow.trigger('${name}', detail);
+// Trigger arbitrary Hyvä Flow event from UI`;
+
+            this.logMsg(`Triggered ${name} via trigger inspector.`);
+        },
+
+        /* select() INSPECTOR */
+        runSelect() {
+            const f = this.flow();
+            if (!f) return;
+
+            const selection = f.select(this.selectSelector);
+            const nodes = selection?.toArray ? selection.toArray() : Array.from(selection || []);
+
+            this.selectLastCount = nodes.length;
+            this.selectLastNodes = nodes.map((node) => ({
+                id: node.dataset?.selectId || node.getAttribute('data-select-id') || node.tagName.toLowerCase(),
+                tag: node.tagName.toLowerCase()
+            }));
+
+            nodes.forEach((node) => this.highlight(node));
+
+            this.snippet =
+`const nodes = hyvaflow.select('${this.selectSelector}').toArray();
+// Run a Hyvä Flow selection and inspect results`;
+
+            this.logMsg(`select('${this.selectSelector}') matched ${nodes.length} node(s).`);
+        },
+
+        runFirst() {
+            const f = this.flow();
+            if (!f) return;
+            const selection = f.select(this.selectSelector);
+            const first = selection?.first ? selection.first() : (selection ? selection[0] : null);
+
+            this.selectLastCount = first ? 1 : 0;
+            this.selectLastNodes = first ? [{
+                id: first.dataset?.selectId || first.getAttribute('data-select-id') || first.tagName.toLowerCase(),
+                tag: first.tagName.toLowerCase()
+            }] : [];
+
+            if (first) this.highlight(first);
+
+            this.snippet =
+`const first = hyvaflow.select('${this.selectSelector}').first();
+// Get the first matching node from the selection`;
+
+            this.logMsg(first ? 'first() returned one node.' : 'first() returned undefined.');
+        },
+
+        runToArray() {
+            const f = this.flow();
+            if (!f) return;
+            const selection = f.select(this.selectSelector);
+            const nodes = selection?.toArray ? selection.toArray() : Array.from(selection || []);
+
+            this.selectLastCount = nodes.length;
+            this.selectLastNodes = nodes.map((node) => ({
+                id: node.dataset?.selectId || node.getAttribute('data-select-id') || node.tagName.toLowerCase(),
+                tag: node.tagName.toLowerCase()
+            }));
+
+            this.snippet =
+`const nodes = hyvaflow.select('${this.selectSelector}').toArray();
+// Convert Hyvä Flow selection wrapper into a plain array`;
+
+            this.logMsg(`toArray() produced ${nodes.length} node(s).`);
+        },
+
+        /* HTMX INSPECTOR */
+        simulateHtmx(eventName) {
+            const detail = {
+                from: 'playground',
+                at: Date.now()
+            };
+
+            document.dispatchEvent(new CustomEvent(eventName, { detail }));
+            this.htmxLastEvent = eventName;
+            this.htmxCount += 1;
+
+            this.snippet =
+`document.dispatchEvent(new CustomEvent('${eventName}', {
+  detail: { from: 'playground', at: Date.now() }
+}));
+// Simulate HTMX lifecycle event`;
+
+            this.logMsg(`Simulated ${eventName}.`);
+        },
+
+        /* DOM LAB: addDomListener + QUEUE + TIMELINE */
+        async replayQueuedEvents() {
+            if (this.processing) return;
+            const queue = this.eventQueue.slice();
+            if (!queue.length) {
+                this.logMsg('No queued events to replay.');
+                return;
+            }
+
+            this.processing = true;
+            this.logMsg(`Replaying ${queue.length} queued event(s)...`);
+
+            for (let i = 0; i < queue.length; i++) {
+                const ev = queue[i];
+                const node = document.querySelector('[data-node="' + ev.node + '"]');
+
+                this.timeline.push({ step: 'replaying', event: ev.type, node: ev.node });
+
+                if (node) {
+                    this.highlight(node);
+                    this.logMsg(`(replayed) ${ev.type} on ${ev.node}`);
+                } else {
+                    this.logMsg(`(replayed) ${ev.type} on ${ev.node} (node not found)`);
+                }
+
+                await new Promise((resolve) => setTimeout(resolve, 250));
+            }
+
+            this.eventQueue = [];
+            this.timeline.push({ step: 'done', event: null, node: null });
+            this.processing = false;
+        },
+
+        wireDomListeners() {
+            const f = this.flow();
+            if (!f) return;
+
+            if (this.domListenerBound) {
+                this.logMsg('addDomListener already wired.');
+                this.snippet =
+`// addDomListener already wired:
+hyvaflow.addDomListener('click', '.lab-node', handler);`;
+                return;
+            }
+
+            this.domListenerBound = true;
+
+            this.supportedEvents.forEach((ev) => {
+                f.addDomListener(ev, '.lab-node, .hyvaflow-dom-node', (event) => {
+                    const target = event.target.closest('.lab-node, .hyvaflow-dom-node');
+                    if (!target) return;
+                    const nodeName = target.dataset.node || (target.textContent || '').trim() || 'node';
+                    this.highlight(target);
+                    this.timeline.push({ step: 'handled', event: ev, node: nodeName });
+                    this.logMsg(`addDomListener(${ev}) fired for ${nodeName}`);
+                });
+            });
+
+            this.snippet =
+`['click','dblclick','input','change'].forEach((ev) => {
+  hyvaflow.addDomListener(ev, '.lab-node, .hyvaflow-dom-node', (event) => {
+    const node = event.target.closest('.lab-node, .hyvaflow-dom-node');
+    console.log(ev, node?.dataset.node);
+  });
+});
+// Wire Hyvä Flow DOM listeners for multiple events`;
+
+            this.logMsg('addDomListener wired for click/dblclick/input/change.');
+            this.replayQueuedEvents();
+        },
+
+        addDomNode() {
+            const area = document.querySelector('[data-lab-area]');
+            if (!area) {
+                this.logMsg('DOM lab area not found.');
+                return;
+            }
+
+            this.domNodeCount += 1;
+            const id = 'dynamic-' + this.domNodeCount;
+
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'action secondary lab-node rounded-full border border-slate-300 px-3 py-1 text-sm shadow-sm transition duration-200';
+            btn.dataset.node = id;
+            btn.textContent = 'Dynamic ' + this.domNodeCount;
+
+            area.appendChild(btn);
+
+            this.snippet =
+`const btn = document.createElement('button');
+btn.type = 'button';
+btn.classList.add('lab-node');
+btn.dataset.node = '${id}';
+area.appendChild(btn);
+// Dynamically add a lab node; addDomListener() will include it automatically`;
+
+            this.logMsg('Added lab node ' + id + '.');
+        }
+    }));
+});
+</script>
+
+<style>
+/* Tiny helper for the timeline pulse (if Tailwind not configured for animate-pulse) */
+.animate-pulse {
+    animation: hf-pulse 0.9s linear infinite;
+}
+@keyframes hf-pulse {
+    0% { opacity: 0.4; }
+    50% { opacity: 1; }
+    100% { opacity: 0.4; }
+}
+</style>

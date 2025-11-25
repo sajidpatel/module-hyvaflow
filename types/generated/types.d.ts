@@ -68,16 +68,6 @@ export interface HyvaFlowCartService {
 }
 export type HyvaFlowServiceName = 'cart' | 'category' | 'products' | 'filters' | 'sort' | 'pricingFilters' | 'childCategories';
 export type HyvaFlowServiceTask<Service = unknown> = (service: Service) => void;
-export interface HyvaFlowServiceLoader {
-    queue<Service = unknown>(serviceName: HyvaFlowServiceName | string, task: HyvaFlowServiceTask<Service>): void;
-    register(serviceName: HyvaFlowServiceName | string): void;
-    flush(serviceName: HyvaFlowServiceName | string): void;
-    flushAll(): void;
-    isReady(serviceName: HyvaFlowServiceName | string): boolean;
-    get<Service = unknown>(serviceName: HyvaFlowServiceName | string): Service | undefined;
-    readonly services: Record<string, unknown>;
-    readonly serviceNames: string[];
-}
 export interface HyvaFlowEventDetailMap {
     'hyva:flow:boot': {
         source?: string;

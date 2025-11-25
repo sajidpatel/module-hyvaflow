@@ -158,12 +158,13 @@ You can then require the package normally (Composer will fetch it from the VCS U
 
 ### Manual drop-in (legacy)
 
-Hyvä Flow ships as two ES module bundles stored in `view/frontend/web/dist`:
+Hyvä Flow ships as three ES module bundles stored in `view/frontend/web/dist`:
 
 - `hyvaflow-core.js` – required event-bus runtime (always include this). Minified version: `hyvaflow-core.min.js`.
 - `hyvaflow-dom.js` – optional DOM helper plugin (selection API, `.apply`, `.set`, `.addDomListener`, etc.). Minified version: `hyvaflow-dom.min.js`.
+- `hyvaflow-loader.js` – optional script loader plugin (dynamic script loading with queue and dependency management). Minified version: `hyvaflow-loader.min.js`.
 
-The default layout XML (`view/frontend/layout/default_head_blocks.xml`) loads both scripts so existing templates keep working. To run a “bus only” setup, include just `hyvaflow-core.js`.
+The default layout XML (`view/frontend/layout/default_head_blocks.xml`) loads both core and DOM scripts so existing templates keep working. To run a “bus only” setup, include just `hyvaflow-core.js`. To add the loader plugin, include `hyvaflow-loader.js` after the core bundle.
 
 Once the script is on the page, it:
 
@@ -312,6 +313,107 @@ Run `npm run build` to build the declaration files and ES module bundle in a sin
 The global object and all chained selections also expose these utility methods, so `window.hyvaflow.select('.product')` gets you a chainable cursor, while `window.hyvaflow.trigger(...)` interacts with the global event bus.
 
 ---
+
+## Loader Plugin (Optional)
+
+The `hyvaflow-loader.js` plugin adds dynamic script loading capabilities with queue management and dependency resolution. Load it after `hyvaflow-core.js` to enable the loader API.
+
+### Installation
+
+Include the loader bundle in your layout XML:
+
+```xml
+<head>
+    <script src="SajidPatel_HyvaFlow::dist/hyvaflow-core.js" />
+    <script src="SajidPatel_HyvaFlow::dist/hyvaflow-loader.js" />
+</head>
+```
+
+Or visit the demo page at `/hyvaflow/loader` to see it in action.
+
+### Loader API
+
+Once loaded, the `window.hyvaflow.loader` object provides these methods:
+
+| Method | Description |
+| --- | --- |
+| `load(urlOrConfig)` | Loads a single script. Accepts a URL string or config object with `url`, `id`, `deps`, `async`, `defer`, and `attributes`. Returns a Promise. |
+| `loadQueue(configs)` | Loads multiple scripts with automatic dependency resolution. Accepts an array of config objects. Returns a Promise that resolves when all scripts are loaded. |
+| `isLoaded(idOrUrl)` | Checks if a script with the given ID or URL has been loaded. Returns boolean. |
+| `getLoaded()` | Returns an array of all loaded script IDs. |
+| `clear()` | Clears the loader cache (useful for testing). |
+
+### Loader Events
+
+The loader emits lifecycle events through the HyvaFlow event bus:
+
+- `hyva:flow:loader:start` – Fired when a script starts loading. Detail includes `url` and `id`.
+- `hyva:flow:loader:complete` – Fired when a script successfully loads. Detail includes `url` and `id`.
+- `hyva:flow:loader:error` – Fired when a script fails to load. Detail includes `url`, `id`, and `error`.
+
+### Usage Examples
+
+**Load a single script:**
+
+```js
+window.hyvaflow.loader.load('https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js')
+  .then(() => console.log('Lodash loaded!'))
+  .catch((err) => console.error('Load failed:', err));
+```
+
+**Load with configuration:**
+
+```js
+window.hyvaflow.loader.load({
+  url: 'https://cdn.example.com/library.js',
+  id: 'my-library',
+  async: true,
+  attributes: { 'data-version': '1.0.0' }
+});
+```
+
+**Load multiple scripts with dependencies:**
+
+```js
+window.hyvaflow.loader.loadQueue([
+  { url: 'https://code.jquery.com/jquery-3.6.0.min.js', id: 'jquery' },
+  { url: 'https://cdn.example.com/jquery-plugin.js', id: 'plugin', deps: ['jquery'] }
+]);
+```
+
+**Listen to loader events:**
+
+```js
+window.hyvaflow.on('hyva:flow:loader:start', (e) => {
+  console.log('Loading:', e.detail.url);
+});
+
+window.hyvaflow.on('hyva:flow:loader:complete', (e) => {
+  console.log('Loaded:', e.detail.id);
+});
+
+window.hyvaflow.on('hyva:flow:loader:error', (e) => {
+  console.error('Failed to load:', e.detail.id, e.detail.error);
+});
+```
+
+**Check if scripts are loaded:**
+
+```js
+if (window.hyvaflow.loader.isLoaded('jquery')) {
+  // jQuery is already loaded
+  initPlugin();
+} else {
+  // Load jQuery first
+  window.hyvaflow.loader.load({ url: 'https://code.jquery.com/jquery-3.6.0.min.js', id: 'jquery' })
+    .then(initPlugin);
+}
+```
+
+The loader automatically prevents duplicate loads by caching loaded scripts and reusing existing promises for scripts currently being loaded.
+
+---
+
 
 ## Typical Use Cases
 

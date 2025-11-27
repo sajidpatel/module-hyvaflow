@@ -69,7 +69,7 @@
                     data-card="<?= $block->escapeHtmlAttr((string) $i) ?>"
                     @click="toggleCard($event)"
                 >
-                    <h3 class="font-semibold"><?= $block->escapeHtml(__('Card %1', $i)) ?></h3>
+                    <h3 class="font-semibold mb-1"><?= $block->escapeHtml(__('Card %1', $i)) ?></h3>
                     <p><?= $block->escapeHtml(__('This block is selectable via hyvaflow.select(\'.hyvaflow-demo-card\').')) ?></p>
                 </article>
             <?php endfor; ?>
@@ -183,7 +183,7 @@
         x-init="init()"
     >
         <div>
-            <h2 class="text-xl font-semibold"><?= $block->escapeHtml(__('publicApi Playground')) ?></h2>
+            <h2 class="text-xl font-semibold"><?= $block->escapeHtml(__('Public API Playground')) ?></h2>
             <p><?= $block->escapeHtml(__('Use the controls below to exercise every Hyvä Flow public API helper and inspect the live output in the log.')) ?></p>
         </div>
 

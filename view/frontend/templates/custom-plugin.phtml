@@ -1,0 +1,215 @@
+<?php
+/** @var \Magento\Framework\View\Element\Template $block */
+?>
+<div class="hyvaflow-customplugin hyva-prose space-y-8 text-slate-800">
+    <header class="space-y-2">
+        <p class="eyebrow text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+            <a href="https://mageos.test/hyvaflow" class="text-slate-500 hover:text-slate-700 transition-colors">← Back to Hyvä Flow</a>
+        </p>
+        <h1><?= $block->escapeHtml(__('Custom Hyvä Flow Plugin (flow.use)')) ?></h1>
+        <p><?= $block->escapeHtml(__('Follow a tiny custom plugin that registers with flow.use(), merges options, exposes a public API, and emits namespaced events.')) ?></p>
+    </header>
+
+    <section class="space-y-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div class="space-y-2">
+            <h2 class="text-xl font-semibold"><?= $block->escapeHtml(__('1) Describe the plugin contract')) ?></h2>
+            <p><?= $block->escapeHtml(__('A plugin definition is a plain object with a unique name, optional defaults, and an initializer. The initializer can extend the public hyvaflow instance and emit events.')) ?></p>
+            <ul class="list-disc pl-6 space-y-1 text-base">
+                <li><?= $block->escapeHtml(__('name: unique handle used by plugins.list() and duplicate checks.')) ?></li>
+                <li><?= $block->escapeHtml(__('defaults: optional options merged before calling initializer.')) ?></li>
+                <li><?= $block->escapeHtml(__('initializer(context, options): runs once; return a dispose function to clean up.')) ?></li>
+            </ul>
+        </div>
+        <pre class="rounded-md bg-slate-900 p-4 text-sm text-slate-100 overflow-x-auto"><code>const pluginDefinition = {
+  name: 'customplugin-guide',
+  defaults: { prefix: 'Flow.use plugin' },
+  initializer: ({ core, setInstance }, options = {}) => {
+    const resolved = { ...pluginDefinition.defaults, ...options };
+    const channel = core.ns('customplugin:guide:announce');
+    const instance = window.hyvaflow || core;
+
+    instance.customPluginGuide = {
+      emit(message) {
+        core.trigger(channel, { prefix: resolved.prefix, message, ts: Date.now() });
+      },
+    };
+
+    setInstance(instance);
+    core.trigger(core.ns('customplugin:guide:ready'), { plugin: pluginDefinition.name, options: resolved });
+  },
+};</code></pre>
+    </section>
+
+    <section class="space-y-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div class="space-y-2">
+            <h2 class="text-xl font-semibold"><?= $block->escapeHtml(__('2) Register it with flow.use()')) ?></h2>
+            <p><?= $block->escapeHtml(__('Hyvä Flow merges defaults with your overrides, guards against duplicate installs, and then runs the initializer. Change the prefix to see options handling.')) ?></p>
+        </div>
+        <div class="flex flex-wrap items-center gap-3">
+            <label for="customplugin-prefix" class="text-sm text-slate-600">
+                <?= $block->escapeHtml(__('Prefix (optional)')) ?>
+            </label>
+            <input id="customplugin-prefix"
+                   type="text"
+                   class="border rounded px-3 py-2 text-sm"
+                   placeholder="<?= $block->escapeHtmlAttr(__('Flow.use plugin')) ?>">
+            <button type="button" class="action primary" id="customplugin-install">
+                <?= $block->escapeHtml(__('Install plugin via flow.use()')) ?>
+            </button>
+        </div>
+    </section>
+
+    <section class="space-y-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div class="space-y-2">
+            <h2 class="text-xl font-semibold"><?= $block->escapeHtml(__('3) Call its API and observe events')) ?></h2>
+            <p><?= $block->escapeHtml(__('The plugin exposes flow.customPluginGuide.emit(message), which fires a namespaced Hyvä Flow event with your prefix.')) ?></p>
+            <p class="text-sm text-slate-600"><?= $block->escapeHtml(__('Use the buttons to emit a sample message or see which plugins are currently registered.')) ?></p>
+        </div>
+        <div class="flex flex-wrap gap-3">
+            <button type="button" class="action" id="customplugin-trigger" disabled>
+                <?= $block->escapeHtml(__('Emit sample message')) ?>
+            </button>
+            <button type="button" class="action" id="customplugin-list-plugins">
+                <?= $block->escapeHtml(__('List registered plugins')) ?>
+            </button>
+        </div>
+    </section>
+
+    <section class="space-y-3 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div class="flex items-center justify-between">
+            <h2 class="text-xl font-semibold"><?= $block->escapeHtml(__('Event Log')) ?></h2>
+            <button type="button" class="action" id="customplugin-log-clear">
+                <?= $block->escapeHtml(__('Clear log')) ?>
+            </button>
+        </div>
+        <p class="text-sm text-slate-600"><?= $block->escapeHtml(__('Install first, then emit a message to see the hyva:flow:customplugin:guide:* events captured below.')) ?></p>
+        <pre id="customplugin-log" class="min-h-[200px] rounded-md bg-slate-950 p-4 text-sm font-mono text-emerald-100 overflow-auto"></pre>
+    </section>
+</div>
+
+<script>
+(() => {
+    const logEl = document.getElementById('customplugin-log');
+    const installBtn = document.getElementById('customplugin-install');
+    const triggerBtn = document.getElementById('customplugin-trigger');
+    const clearBtn = document.getElementById('customplugin-log-clear');
+    const listBtn = document.getElementById('customplugin-list-plugins');
+    const prefixInput = document.getElementById('customplugin-prefix');
+    let emitCount = 0;
+
+    const logLine = (message) => {
+        if (!logEl) return;
+        const now = new Date().toLocaleTimeString();
+        logEl.textContent = `[${now}] ${message}\n` + logEl.textContent;
+    };
+
+    const pluginDefinition = {
+        name: 'customplugin-guide',
+        defaults: { prefix: 'Flow.use plugin' },
+        initializer: ({ core, setInstance }, options = {}) => {
+            const resolved = { ...pluginDefinition.defaults, ...options };
+            const channel = core.ns('customplugin:guide:announce');
+
+            const handler = (event) => {
+                if (event?.detail) {
+                    console.log('[customplugin-guide]', event.detail);
+                }
+            };
+
+            core.on(channel, handler);
+
+            const instance = window.hyvaflow || core;
+            instance.customPluginGuide = {
+                options: resolved,
+                emit(message) {
+                    core.trigger(channel, {
+                        message,
+                        prefix: resolved.prefix,
+                        ts: Date.now(),
+                    });
+                },
+            };
+            setInstance(instance);
+
+            core.trigger(core.ns('customplugin:guide:ready'), { plugin: pluginDefinition.name, options: resolved });
+
+            return () => core.off(channel, handler);
+        },
+    };
+
+    const ensureFlow = () => {
+        const flow = window.hyvaflow;
+        if (!flow || typeof flow.use !== 'function') {
+            logLine('window.hyvaflow.use() is not available. Ensure hyvaflow-core.js is loaded.');
+            return null;
+        }
+        return flow;
+    };
+
+    const installPlugin = () => {
+        const flow = ensureFlow();
+        if (!flow) return;
+
+        if (flow.plugins?.isRegistered?.(pluginDefinition.name)) {
+            logLine('Plugin already installed; reusing existing instance.');
+            triggerBtn?.removeAttribute('disabled');
+            return;
+        }
+
+        const prefix = (prefixInput?.value || '').trim() || pluginDefinition.defaults.prefix;
+        flow.use(pluginDefinition, { prefix });
+        triggerBtn?.removeAttribute('disabled');
+        logLine(`Registered "${pluginDefinition.name}" via flow.use() with prefix "${prefix}".`);
+    };
+
+    const emitMessage = () => {
+        const flow = ensureFlow();
+        if (!flow || !flow.customPluginGuide?.emit) {
+            logLine('Install the plugin first to expose flow.customPluginGuide.emit().');
+            return;
+        }
+        emitCount += 1;
+        flow.customPluginGuide.emit(`Hello from the plugin guide #${emitCount}`);
+    };
+
+    const listPlugins = () => {
+        const flow = ensureFlow();
+        if (!flow) return;
+        const names = (flow.plugins?.list?.() || []).join(', ') || 'none';
+        logLine(`Registered plugins: ${names}`);
+    };
+
+    const attachListeners = () => {
+        const flow = ensureFlow();
+        if (!flow) return;
+
+        const channel = flow.ns('customplugin:guide:announce');
+        flow.on(channel, (event) => {
+            const detail = event?.detail || {};
+            const message = detail.message || 'No message';
+            const prefix = detail.prefix || 'flow.use';
+            const when = detail.ts ? new Date(detail.ts).toLocaleTimeString() : 'now';
+            logLine(`${prefix} → ${message} (${when})`);
+        });
+
+        flow.on(flow.ns('customplugin:guide:ready'), (event) => {
+            const opts = event?.detail?.options || {};
+            logLine(`customplugin-guide ready with options: ${JSON.stringify(opts)}`);
+        });
+    };
+
+    const ready = () => {
+        attachListeners();
+        installBtn?.addEventListener('click', installPlugin);
+        triggerBtn?.addEventListener('click', emitMessage);
+        clearBtn?.addEventListener('click', () => { logEl.textContent = ''; });
+        listBtn?.addEventListener('click', listPlugins);
+    };
+
+    if (document.readyState === 'complete' || document.readyState === 'interactive') {
+        ready();
+    } else {
+        document.addEventListener('DOMContentLoaded', ready, { once: true });
+    }
+})();
+</script>

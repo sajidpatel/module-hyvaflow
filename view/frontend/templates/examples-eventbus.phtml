@@ -1,19 +1,19 @@
 <?php
 /** @var \Magento\Framework\View\Element\Template $block */
 ?>
-<div class="hyvaflow-examples2 hyva-prose space-y-8" data-role="hyvaflow-examples2">
+<div class="hyvaflow-examples2 hyva-prose space-y-8 text-slate-800" data-role="hyvaflow-examples2">
     <header class="space-y-2">
         <p class="eyebrow text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
             <a href="https://mageos.test/hyvaflow" class="text-slate-500 hover:text-slate-700 transition-colors">← Back to Hyvä Flow</a>
         </p>
-        <p class="eyebrow"><?= $block->escapeHtml(__('Hyvä Flow Examples')) ?></p>
-        <h1 class="text-3xl font-semibold"><?= $block->escapeHtml(__('Global Event Bus & Cross-Component Events')) ?></h1>
+        <p class="eyebrow text-xs font-semibold uppercase tracking-[0.2em] text-slate-500"><?= $block->escapeHtml(__('Hyvä Flow Examples')) ?></p>
+        <h1 class="text-2xl font-bold"><?= $block->escapeHtml(__('Global Event Bus & Cross-Component Events')) ?></h1>
         <p><?= $block->escapeHtml(__('This page shows how a single window.hyvaflow instance can broadcast events across loosely coupled UI components. Try the controls below to see publishers and subscribers interact.')) ?></p>
     </header>
 
-    <section class="hyvaflow-card border rounded p-4 space-y-4" id="examples2-global-bus">
+    <section class="hyvaflow-card space-y-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm" id="examples2-global-bus">
         <div>
-            <h2 class="text-2xl font-semibold"><?= $block->escapeHtml(__('Global Event Bus')) ?></h2>
+            <h2 class="text-xl font-semibold"><?= $block->escapeHtml(__('Global Event Bus')) ?></h2>
             <p><?= $block->escapeHtml(__('Emit a search event once and let multiple listeners react: analytics pushes to the data layer, recommendation tiles refresh copy, and HTMX components can fetch new data.')) ?></p>
         </div>
 
@@ -76,9 +76,9 @@ window.hyvaflow.on('examples2:search', handler);
         </div>
     </section>
 
-    <section class="hyvaflow-card border rounded p-4 space-y-4" id="examples2-cross-components">
+    <section class="hyvaflow-card space-y-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm" id="examples2-cross-components">
         <div>
-            <h2 class="text-2xl font-semibold"><?= $block->escapeHtml(__('Cross-Component Event Flow')) ?></h2>
+            <h2 class="text-xl font-semibold"><?= $block->escapeHtml(__('Cross-Component Event Flow')) ?></h2>
             <p><?= $block->escapeHtml(__('A single add-to-cart event fans out to the cart badge, free-delivery banner, and analytics. Toggle components independently to see how loosely coupled updates stay in sync.')) ?></p>
         </div>
 
@@ -137,9 +137,9 @@ window.hyvaflow.on('examples2:search', handler);
         </article>
     </section>
 
-    <section class="hyvaflow-card border rounded p-4 space-y-2" id="examples2-log">
+    <section class="hyvaflow-card space-y-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm" id="examples2-log">
         <div class="flex items-center justify-between">
-            <h2 class="text-2xl font-semibold mb-0"><?= $block->escapeHtml(__('Unified Event Log')) ?></h2>
+            <h2 class="text-xl font-semibold mb-0"><?= $block->escapeHtml(__('Unified Event Log')) ?></h2>
             <button type="button" class="action" id="examples2-clear-log"><?= $block->escapeHtml(__('Clear log')) ?></button>
         </div>
         <pre id="examples2-log-output" class="hyvaflow-demo-log"></pre>

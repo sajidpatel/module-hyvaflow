@@ -1,17 +1,17 @@
 <?php
 /** @var \Magento\Framework\View\Element\Template $block */
 ?>
-<div class="hyvaflow-examples hyva-prose space-y-6">
-    <header>
+<div class="hyvaflow-examples hyva-prose space-y-8 text-slate-800">
+    <header class="space-y-2">
         <h1><?= $block->escapeHtml(__('3 Hyvä Flow Examples')) ?></h1>
         <p><?= $block->escapeHtml(__('Use this page to smoke test the Hyvä Flow event utilities.')) ?></p>
     </header>
 
-    <section class="border rounded p-4 space-y-3">
+    <section class="space-y-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
         <p class="eyebrow text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
             <a href="https://mageos.test/hyvaflow" class="text-slate-500 hover:text-slate-700 transition-colors">← Back to Hyvä Flow</a>
         </p>
-        <h2 class="text-lg font-semibold"><?= $block->escapeHtml(__('Event Demo')) ?></h2>
+        <h2 class="text-xl font-semibold"><?= $block->escapeHtml(__('Event Demo')) ?></h2>
         <p><?= $block->escapeHtml(__('Click the buttons to trigger Hyvä Flow events. Watch the log update below.')) ?></p>
         <div class="flex gap-2">
             <button type="button" class="action primary" id="hyvaflow-demo-trigger">
@@ -24,8 +24,8 @@
         <pre id="hyvaflow-demo-log" class="bg-black text-green-200 text-sm rounded p-3 overflow-auto"></pre>
     </section>
 
-    <section class="border rounded p-4 space-y-3">
-        <h2 class="text-lg font-semibold"><?= $block->escapeHtml(__('Usage Notes')) ?></h2>
+    <section class="space-y-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+        <h2 class="text-xl font-semibold"><?= $block->escapeHtml(__('Usage Notes')) ?></h2>
         <ul class="list-disc pl-6 space-y-2">
             <li><?= $block->escapeHtml(__('Load vendor/sajidpatel/hyvaflow/view/frontend/web/dist/hyvaflow-core.js (required) and, if you need DOM helpers, hyvaflow-dom.js.')) ?></li>
             <li><?= $block->escapeHtml(__('Listen for any custom event via window.hyvaflow.on(eventName, handler).')) ?></li>

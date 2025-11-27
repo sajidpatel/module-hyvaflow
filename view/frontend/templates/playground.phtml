@@ -22,6 +22,109 @@
         </p>
     </header>
 
+    <!-- BUNDLE STATUS -->
+    <section class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm space-y-4">
+        <div class="flex items-center justify-between gap-3">
+            <div>
+                <h2 class="text-xl font-semibold"><?= $block->escapeHtml(__('Bundles on this page')) ?></h2>
+                <p class="text-sm text-slate-600">
+                    <?= $block->escapeHtml(__('Detect the three Hyvä Flow bundles (core, DOM plugin, loader) and poke the loader without leaving the playground.')) ?>
+                </p>
+            </div>
+            <button type="button" class="action text-xs" @click="checkBundles()">
+                <?= $block->escapeHtml(__('Refresh detection')) ?>
+            </button>
+        </div>
+
+        <div class="grid gap-3 md:grid-cols-3">
+            <!-- Core -->
+            <div class="rounded-xl border border-slate-200 bg-slate-50 p-4 space-y-2">
+                <div class="flex items-start justify-between gap-3">
+                    <div>
+                        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">hyvaflow-core</p>
+                        <p class="font-semibold text-slate-900">Event bus + namespaces</p>
+                    </div>
+                    <span class="w-3 h-3 rounded-full mt-1"
+                        :class="bundleStatus.core ? 'bg-emerald-400' : 'bg-rose-300'"></span>
+                </div>
+                <p class="text-sm text-slate-600">
+                    <?= $block->escapeHtml(__('window.hyvaflow with trigger(), on(), ns() and queue processing.')) ?>
+                </p>
+                <p class="text-xs text-slate-500" x-text="bundleStatus.core ? 'Detected' : 'Not detected'"></p>
+            </div>
+
+            <!-- DOM plugin -->
+            <div class="rounded-xl border border-slate-200 bg-slate-50 p-4 space-y-2">
+                <div class="flex items-start justify-between gap-3">
+                    <div>
+                        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">hyvaflow-dom</p>
+                        <p class="font-semibold text-slate-900">select() + addDomListener()</p>
+                    </div>
+                    <span class="w-3 h-3 rounded-full mt-1"
+                        :class="bundleStatus.dom ? 'bg-emerald-400' : 'bg-rose-300'"></span>
+                </div>
+                <p class="text-sm text-slate-600">
+                    <?= $block->escapeHtml(__('DOM helper plugin that powers select(), first(), and delegated listeners.')) ?>
+                </p>
+                <p class="text-xs text-slate-500" x-text="bundleStatus.dom ? 'Detected' : 'Not detected'"></p>
+            </div>
+
+            <!-- Loader -->
+            <div class="rounded-xl border border-slate-200 bg-slate-50 p-4 space-y-2">
+                <div class="flex items-start justify-between gap-3">
+                    <div>
+                        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">hyvaflow-loader</p>
+                        <p class="font-semibold text-slate-900">Script queue + deps</p>
+                    </div>
+                    <span class="w-3 h-3 rounded-full mt-1"
+                        :class="bundleStatus.loader ? 'bg-emerald-400' : 'bg-rose-300'"></span>
+                </div>
+                <p class="text-sm text-slate-600">
+                    <?= $block->escapeHtml(__('Load scripts via hyvaflow.loader.load(), track cache, and resolve dependencies.')) ?>
+                </p>
+                <div class="flex flex-wrap items-center gap-2 text-xs text-slate-500">
+                    <span x-text="bundleStatus.loader ? (bundleStatus.loadedScripts.length + ' loaded') : 'Not detected'"></span>
+                    <template x-if="bundleStatus.loadedScripts.length">
+                        <span class="truncate" :title="bundleStatus.loadedScripts.join(', ')">
+                            · <span x-text="bundleStatus.loadedScripts.join(', ')"></span>
+                        </span>
+                    </template>
+                </div>
+                <div class="flex flex-wrap gap-2 pt-1">
+                    <button
+                        type="button"
+                        class="action secondary text-xs"
+                        @click="loadSampleScript()"
+                        :disabled="loaderDemo.loading"
+                        :class="{ 'opacity-60 cursor-not-allowed': loaderDemo.loading }"
+                    >
+                        <span x-text="loaderDemo.loading ? 'Loading…' : 'Load demo script'"></span>
+                    </button>
+                    <button
+                        type="button"
+                        class="action text-xs"
+                        @click="bundleStatus.loadedScripts = flow()?.loader?.getLoaded ? flow().loader.getLoaded() : []"
+                        :disabled="!bundleStatus.loader"
+                        :class="{ 'opacity-60 cursor-not-allowed': !bundleStatus.loader }"
+                    >
+                        <?= $block->escapeHtml(__('List loaded')) ?>
+                    </button>
+                </div>
+                <template x-if="loaderDemo.lastId">
+                    <p class="text-xs text-emerald-700">
+                        <span x-text="`Loaded via loader: ${loaderDemo.lastId}`"></span>
+                        <template x-if="loaderDemo.counter !== null">
+                            <span x-text="` (counter ${loaderDemo.counter})`"></span>
+                        </template>
+                    </p>
+                </template>
+                <template x-if="loaderDemo.error">
+                    <p class="text-xs text-red-600" x-text="loaderDemo.error"></p>
+                </template>
+            </div>
+        </div>
+    </section>
+
     <!-- GLOBAL SNIPPET VIEWER -->
     <section class="rounded-2xl bg-slate-900 text-slate-100 p-4 text-sm overflow-x-auto shadow">
         <div class="flex items-center justify-between mb-2">
@@ -183,7 +286,7 @@
                     class="p-4 rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100 cursor-pointer transition select-target"
                     data-select-target="1"
                     data-select-id="<?= $block->escapeHtmlAttr($id) ?>"
-                    @click="highlight($el)"
+                    @click="selectSelector = `[data-select-id='${$el.dataset.selectId}']`; highlight($el)"
                 >
                     <p class="font-semibold mb-1"><?= $block->escapeHtml(ucfirst($id)) ?></p>
                     <p class="text-xs text-slate-600">
@@ -286,7 +389,7 @@
                 </template>
 
                 <ul class="space-y-1 text-xs max-h-40 overflow-auto">
-                    <template x-for="(ev, i) in eventQueue" :key="i">
+                    <template x-for="(ev, i) in queueView()" :key="ev.id || ev.timestamp || i">
                         <li class="p-2 rounded bg-white border border-slate-200 flex justify-between gap-3">
                             <span>
                                 <strong x-text="ev.type"></strong>
@@ -366,11 +469,28 @@
 </div>
 
 <script>
+const loaderDemoUrl = '<?= $block->escapeJs($block->getViewFileUrl('SajidPatel_HyvaFlow::dist/hyvaflow-loader-demo.js')) ?>';
+
 document.addEventListener('alpine:init', () => {
     Alpine.data('hyvaFlowPlayground', () => ({
         // Global
         snippet: '// Snippet output will appear here',
         log: '',
+
+        // Bundles
+        bundleStatus: {
+            core: false,
+            dom: false,
+            loader: false,
+            loadedScripts: []
+        },
+        loaderDemo: {
+            loading: false,
+            lastId: null,
+            error: null,
+            counter: null
+        },
+        bundleListenersAttached: false,
 
         // EventBus inspector
         eventBus: {
@@ -403,6 +523,9 @@ document.addEventListener('alpine:init', () => {
 
         init() {
             this.logMsg('Hyvä Flow Playground ready.');
+            this.checkBundles();
+
+            this.attachBundleListeners();
 
             const area = document.querySelector('[data-lab-area]');
             if (area) {
@@ -428,10 +551,14 @@ document.addEventListener('alpine:init', () => {
 
                     const nodeName = node.dataset.node || (node.textContent || '').trim() || 'node';
 
+                    const ts = Date.now();
+                    const id = `${ts}-${Math.random().toString(16).slice(2, 6)}`;
+
                     this.eventQueue.push({
+                        id,
                         type: ev,
                         node: nodeName,
-                        timestamp: Date.now()
+                        timestamp: ts
                     });
 
                     this.timeline.push({ step: 'queued', event: ev, node: nodeName });
@@ -448,6 +575,13 @@ document.addEventListener('alpine:init', () => {
             this.log = `[${ts}] ${msg}\n` + this.log;
         },
 
+        queueView() {
+            // Always show newest first without mutating the underlying queue order
+            console.log(this.eventQueue);
+            console.log(this.eventQueue.slice().sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0)));
+            return this.eventQueue.slice().sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+        },
+
         flow() {
             const f = window.hyvaflow;
             if (!f) {
@@ -462,6 +596,89 @@ document.addEventListener('alpine:init', () => {
             setTimeout(() => {
                 node.classList.remove('ring-2', 'ring-emerald-400', 'shadow-md');
             }, 500);
+        },
+
+        attachBundleListeners(attempts = 5, delay = 300) {
+            if (this.bundleListenersAttached) return;
+            const f = window.hyvaflow;
+            if (f && typeof f.addEventListener === 'function') {
+                [
+                    'hyva:flow:ready',
+                    'hyva:flow:dom:refresh',
+                    'hyva:flow:loader:start',
+                    'hyva:flow:loader:complete',
+                    'hyva:flow:loader:error'
+                ].forEach((eventName) => f.addEventListener(eventName, () => this.checkBundles()));
+                this.bundleListenersAttached = true;
+                this.logMsg('Bundle listeners attached.');
+                return;
+            }
+
+            if (attempts > 0) {
+                setTimeout(() => this.attachBundleListeners(attempts - 1, delay), delay);
+            } else {
+                this.logMsg('Hyvä Flow not ready; bundle listeners not attached.');
+            }
+        },
+
+        /* BUNDLES */
+        checkBundles() {
+            const f = window.hyvaflow;
+            this.bundleStatus.core = !!f;
+            this.bundleStatus.dom = !!(f && typeof f.select === 'function' && typeof f.addDomListener === 'function');
+            this.bundleStatus.loader = !!(f && f.loader);
+            this.bundleStatus.loadedScripts = f?.loader?.getLoaded ? f.loader.getLoaded() : [];
+            return this.bundleStatus;
+        },
+
+        async loadSampleScript() {
+            const f = this.flow();
+            if (!f) return;
+
+            if (!f.loader) {
+                this.logMsg('hyvaflow-loader.js is not detected. Load it to try the loader demo.');
+                this.snippet =
+`// hyvaflow-loader.js missing
+hyvaflow.loader.load({ url: 'https://example.com/script.js' });`;
+                return;
+            }
+
+            const id = 'hf-playground-demo-script';
+            const url = loaderDemoUrl;
+
+            this.loaderDemo.loading = true;
+            this.loaderDemo.error = null;
+            this.logMsg(`Loading demo script from ${url}`);
+
+            try {
+                await f.loader.load({
+                    url,
+                    id,
+                    attributes: { 'data-hf-demo': '1' }
+                });
+
+                this.loaderDemo.lastId = id;
+                this.bundleStatus.loadedScripts = f.loader.getLoaded ? f.loader.getLoaded() : [];
+
+                this.snippet =
+`const demoUrl = '${loaderDemoUrl}';
+hyvaflow.loader.load({
+  url: demoUrl,
+  id: '${id}',
+  attributes: { 'data-hf-demo': '1' },
+});
+// Load a demo script from module assets (CSP-safe) via hyvaflow-loader`;
+
+                this.loaderDemo.counter = typeof window.__hyvaflowLoaderDemo === 'number' ? window.__hyvaflowLoaderDemo : null;
+                const countNote = this.loaderDemo.counter ? ` (counter ${this.loaderDemo.counter})` : '';
+                this.logMsg(`Loader demo script loaded${countNote}.`);
+            } catch (error) {
+                this.loaderDemo.error = error?.message || 'Loader failed';
+                this.logMsg(`Loader demo failed from ${url}: ` + this.loaderDemo.error);
+            } finally {
+                this.loaderDemo.loading = false;
+                this.checkBundles();
+            }
         },
 
         /* EVENT BUS */
@@ -780,6 +997,34 @@ area.appendChild(btn);
 </script>
 
 <style>
+/* Playground-only button styling to match black pill CTA */
+.hyvaflow-playground .action {
+    background: #0b0b0b;
+    color: #fff;
+    border: none;
+    border-radius: 9999px;
+    padding: 0.85rem 1.8rem;
+    font-weight: 600;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.28);
+    transition: background-color 0.18s ease, transform 0.15s ease, box-shadow 0.18s ease;
+}
+.hyvaflow-playground .action:hover {
+    background: #111;
+    transform: translateY(-1px);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.32);
+}
+.hyvaflow-playground .action:active {
+    transform: translateY(0);
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.28);
+}
+.hyvaflow-playground .action:disabled,
+.hyvaflow-playground .action[disabled] {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.2);
+}
+
 /* Tiny helper for the timeline pulse (if Tailwind not configured for animate-pulse) */
 .animate-pulse {
     animation: hf-pulse 0.9s linear infinite;

@@ -41,7 +41,7 @@ HyväFlow DOM ensures: - Delegated events always reach correct targets
 
 ### No more "DOM wasn't ready" bugs
 
-Hyvä Flow handles: - `DOMContentLoaded` - `alpine:init` -
+Hyvä Flow handles: - ` ` - `alpine:init` -
 `htmx:afterSwap` - `hyva:flow:dom:refresh`
 
 Consistently.
